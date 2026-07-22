@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -28,7 +29,8 @@ fun HomeTopBar() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 12.dp),
+            .statusBarsPadding()
+            .padding(start = 24.dp, end = 24.dp, top = 18.dp, bottom = 6.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -37,12 +39,12 @@ fun HomeTopBar() {
                 imageVector = Icons.Outlined.Key,
                 contentDescription = null,
                 tint = Color(0xFF0E5E53),
-                modifier = Modifier.size(26.dp)
+                modifier = Modifier.size(30.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = "Unlost",
-                fontSize = 22.sp,
+                fontSize = 25.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF0E5E53)
             )
@@ -50,7 +52,7 @@ fun HomeTopBar() {
 
         Box(
             modifier = Modifier
-                .size(36.dp)
+                .size(44.dp)
                 .clip(CircleShape)
                 .background(Color(0xFF0E5E53)),
             contentAlignment = Alignment.Center
@@ -58,7 +60,7 @@ fun HomeTopBar() {
             Text(
                 text = "U",
                 color = Color.White,
-                fontSize = 16.sp,
+                fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )
         }

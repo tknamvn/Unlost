@@ -21,7 +21,7 @@ fun FilterChipsRow(
     onCategorySelected: (String) -> Unit
 ) {
     LazyRow(
-        contentPadding = PaddingValues(horizontal = 20.dp),
+        contentPadding = PaddingValues(horizontal = 24.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(categories) { category ->
@@ -32,7 +32,7 @@ fun FilterChipsRow(
                 label = {
                     Text(
                         text = if (isSelected && category != "Tất cả") "✓ $category" else category,
-                        fontSize = 13.sp,
+                        fontSize = 14.sp,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                     )
                 },

@@ -32,27 +32,27 @@ fun HomeVoiceBanner(onBannerClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onBannerClick),
-        shape = RoundedCornerShape(28.dp),
+        shape = RoundedCornerShape(32.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF76F7D4))
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 24.dp, horizontal = 20.dp),
+                .padding(vertical = 30.dp, horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = "Bạn đang để đồ ở đâu?",
-                fontSize = 20.sp,
+                fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF0E5E53)
             )
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Box(
                 modifier = Modifier
-                    .size(72.dp)
+                    .size(84.dp)
                     .clip(CircleShape)
                     .background(Color(0xFF0E5E53)),
                 contentAlignment = Alignment.Center
@@ -61,16 +61,16 @@ fun HomeVoiceBanner(onBannerClick: () -> Unit) {
                     imageVector = Icons.Default.Mic,
                     contentDescription = "Ghi nhớ vị trí",
                     tint = Color.White,
-                    modifier = Modifier.size(34.dp)
+                    modifier = Modifier.size(42.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Text(
                 text = "Chạm để ghi nhớ vị trí",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
                 color = Color(0xFF0E5E53)
             )
         }

@@ -80,7 +80,7 @@ fun SearchScreen(
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(10.dp))
                 SearchInputBar(
                     query = query,
                     onQueryChange = viewModel::onQueryChange,
@@ -97,15 +97,15 @@ fun SearchScreen(
                 if (results.isNotEmpty()) {
                     Text(
                         text = "Tìm thấy ${results.size} kết quả",
-                        fontSize = 13.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color(0xFF64748B),
-                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)
+                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 4.dp)
                     )
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(14.dp)
                     ) {
                         itemsIndexed(results, key = { _, item -> item.id }) { index, item ->
                             ItemCard(
@@ -119,7 +119,7 @@ fun SearchScreen(
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(
                             text = if (query.isEmpty() && selectedCategory == "Tất cả") "Nhập từ khóa hoặc chọn thẻ để tìm kiếm" else "Không tìm thấy đồ vật nào phù hợp",
-                            fontSize = 14.sp,
+                            fontSize = 15.sp,
                             color = Color(0xFF94A3B8)
                         )
                     }
@@ -140,7 +140,7 @@ private fun SearchInputBar(
         onValueChange = onQueryChange,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp),
+            .padding(horizontal = 24.dp),
         placeholder = { Text("Tìm kiếm đồ đạc...", fontSize = 16.sp) },
         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color(0xFF64748B)) },
         trailingIcon = {
@@ -155,7 +155,7 @@ private fun SearchInputBar(
                 }
             }
         },
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(28.dp),
         singleLine = true,
         colors = OutlinedTextFieldDefaults.colors(
             focusedContainerColor = Color.White,
