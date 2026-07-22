@@ -98,7 +98,7 @@ fun SearchScreen(
                     items(results, key = { it.id }) { item ->
                         ItemCard(
                             item = item,
-                            onDeleteClick = { viewModel.deleteItem(it) }
+                            onDeleteClick = { viewModel.deleteItem(item) }
                         )
                     }
                 }

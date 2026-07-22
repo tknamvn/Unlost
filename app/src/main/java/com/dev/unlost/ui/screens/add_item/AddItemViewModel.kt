@@ -51,10 +51,6 @@ class AddItemViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(location = newLocation, errorMessage = null)
     }
 
-    fun onDescriptionChange(newDesc: String) {
-        _uiState.value = _uiState.value.copy(description = newDesc)
-    }
-
     fun toggleVoiceRecording() {
         if (_uiState.value.isRecording) {
             _uiState.value = _uiState.value.copy(isRecording = false)
@@ -62,6 +58,7 @@ class AddItemViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isRecording = true, errorMessage = null)
             speechRecognizerHelper.startListening().collect { state ->
                 when (state) {
                     is SpeechState.Listening -> {
