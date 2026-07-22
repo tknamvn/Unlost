@@ -3,35 +3,38 @@ package com.dev.unlost.ui.screens.add_item
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dev.unlost.ui.components.VoiceRecordButton
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddItemScreen(
     onNavigateBack: () -> Unit,
@@ -48,6 +51,7 @@ fun AddItemScreen(
     }
 
     LaunchedEffect(Unit) {
+        permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
         viewModel.uiEvent.collect { event ->
             when (event) {
                 is AddItemUiEvent.SaveSuccess -> onNavigateBack()
@@ -56,98 +60,91 @@ fun AddItemScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Thêm đồ vật mới") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Quay lại"
-                        )
-                    }
-                }
-            )
-        }
-    ) { innerPadding ->
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = Color(0xFFFAFBFB)
+    ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                text = "Nói hoặc nhập thông tin đồ vật:",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.align(Alignment.Start)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            VoiceRecordButton(
+            VoiceTopBar(
                 isRecording = uiState.isRecording,
-                onClick = {
-                    permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-                }
+                onBackClick = onNavigateBack
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = if (uiState.isRecording) "Đang lắng nghe..." else "Bấm micro để nói (Ví dụ: 'Tôi để chìa khóa ở tủ sách')",
-                style = MaterialTheme.typography.bodyMedium,
-                color = if (uiState.isRecording) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outline
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            OutlinedTextField(
-                value = uiState.title,
-                onValueChange = { viewModel.onTitleChange(it) },
-                label = { Text("Tên đồ vật (*)") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            OutlinedTextField(
-                value = uiState.location,
-                onValueChange = { viewModel.onLocationChange(it) },
-                label = { Text("Vị trí để (*)") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            OutlinedTextField(
-                value = uiState.description,
-                onValueChange = { viewModel.onDescriptionChange(it) },
-                label = { Text("Ghi chú thêm (Tùy chọn)") },
-                modifier = Modifier.fillMaxWidth(),
-                minLines = 3
-            )
-
-            if (uiState.errorMessage != null) {
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = uiState.errorMessage!!,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                VoiceRecordButton(
+                    isRecording = uiState.isRecording,
+                    onClick = {
+                        permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                    },
+                    buttonSize = 110.dp
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            RecognizedResultSheet(
+                uiState = uiState,
+                onTitleChange = viewModel::onTitleChange,
+                onLocationChange = viewModel::onLocationChange,
+                onSaveClick = viewModel::saveItem
+            )
+        }
+    }
+}
 
-            Button(
-                onClick = { viewModel.saveItem() },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Lưu đồ vật")
+@Composable
+private fun VoiceTopBar(
+    isRecording: Boolean,
+    onBackClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(onClick = onBackClick) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "Quay lại",
+                tint = Color(0xFF0F172A)
+            )
+        }
+
+        Text(
+            text = if (isRecording) "Đang lắng nghe..." else "Chạm micro để nói",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF0F172A)
+        )
+
+        Box(
+            modifier = Modifier
+                .clip(CircleShape)
+                .background(if (isRecording) Color(0xFFFEE2E2) else Color(0xFFF1F5F9))
+                .padding(horizontal = 10.dp, vertical = 4.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .clip(CircleShape)
+                        .background(if (isRecording) Color(0xFFEF4444) else Color(0xFF94A3B8))
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = "REC",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = if (isRecording) Color(0xFFEF4444) else Color(0xFF94A3B8)
+                )
             }
         }
     }
