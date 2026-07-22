@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Dark Premium Background Canvas -->
+    <path
+        android:pathData="M 24,14 L 84,14 A 10,10 0 0 1 94,24 L 94,84 A 10,10 0 0 1 84,94 L 24,94 A 10,10 0 0 1 14,84 L 14,24 A 10,10 0 0 1 24,14 Z"
+        android:fillColor="#0F172A" />
+
+    <!-- Variant 2: Modern Minimal U + Floating Beacon Glow Pin -->
+    <!-- Soft Rounded 'U' with thick sleek line cut -->
+    <path
+        android:pathData="M 36,30 L 36,54 C 36,63.9 44.1,72 54,72 C 63.9,72 72,63.9 72,54 L 72,30"
+        android:strokeWidth="10"
+        android:strokeLineCap="round">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:startX="36"
+                android:startY="30"
+                android:endX="72"
+                android:endY="72"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FF00F2FE" />
+                <item android:offset="1.0" android:color="#FF4F46E5" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Floating Location Pin Head inside U -->
+    <path
+        android:pathData="M 54,34 C 49.6,34 46,37.6 46,42 C 46,47.5 54,54 54,54 C 54,54 62,47.5 62,42 C 62,37.6 58.4,34 54,34 Z M 54,44.5 A 2.5,2.5 0 1,1 53.9,44.5 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="46"
+                android:startY="34"
+                android:endX="62"
+                android:endY="54"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FF38BDF8" />
+                <item android:offset="1.0" android:color="#FF34D399" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+</vector>
