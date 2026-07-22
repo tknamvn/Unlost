@@ -8,7 +8,6 @@ import androidx.navigation.compose.rememberNavController
 import com.dev.unlost.ui.screens.add_item.AddItemScreen
 import com.dev.unlost.ui.screens.home.HomeScreen
 import com.dev.unlost.ui.screens.onboarding.OnboardingScreen
-import com.dev.unlost.ui.screens.pin.PinScreen
 import com.dev.unlost.ui.screens.search.SearchScreen
 
 @Composable
@@ -22,19 +21,8 @@ fun NavGraph(
         composable(Screen.Onboarding.route) {
             OnboardingScreen(
                 onStartClick = {
-                    navController.navigate(Screen.SecurityPin.route) {
-                        popUpTo(Screen.Onboarding.route) {
-                            inclusive = true
-                        }
-                    }
-                }
-            )
-        }
-        composable(Screen.SecurityPin.route) {
-            PinScreen(
-                onNavigateToHome = {
                     navController.navigate(Screen.Home.route) {
-                        popUpTo(Screen.SecurityPin.route) {
+                        popUpTo(Screen.Onboarding.route) {
                             inclusive = true
                         }
                     }
