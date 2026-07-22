@@ -9,7 +9,6 @@ import com.dev.unlost.ui.screens.add_item.AddItemScreen
 import com.dev.unlost.ui.screens.home.HomeScreen
 import com.dev.unlost.ui.screens.onboarding.OnboardingScreen
 import com.dev.unlost.ui.screens.search.SearchScreen
-import com.dev.unlost.ui.screens.settings.SettingsScreen
 
 @Composable
 fun NavGraph(
@@ -23,7 +22,9 @@ fun NavGraph(
             OnboardingScreen(
                 onStartClick = {
                     navController.navigate(Screen.Home.route) {
-                        popUpTo(Screen.Onboarding.route) { inclusive = true }
+                        popUpTo(Screen.Onboarding.route) {
+                            inclusive = true
+                        }
                     }
                 }
             )
@@ -31,12 +32,7 @@ fun NavGraph(
         composable(Screen.Home.route) {
             HomeScreen(
                 onNavigateToAddItem = { navController.navigate(Screen.AddItem.route) },
-                onNavigateToSearch = {
-                    navController.navigate(Screen.Search.route) { launchSingleTop = true }
-                },
-                onNavigateToSettings = {
-                    navController.navigate(Screen.Settings.route) { launchSingleTop = true }
-                }
+                onNavigateToSearch = { navController.navigate(Screen.Search.route) }
             )
         }
         composable(Screen.AddItem.route) {
@@ -46,23 +42,7 @@ fun NavGraph(
         }
         composable(Screen.Search.route) {
             SearchScreen(
-                onNavigateToHome = {
-                    navController.navigate(Screen.Home.route) { launchSingleTop = true }
-                },
-                onNavigateToSettings = {
-                    navController.navigate(Screen.Settings.route) { launchSingleTop = true }
-                },
-                onNavigateToAddItem = { navController.navigate(Screen.AddItem.route) }
-            )
-        }
-        composable(Screen.Settings.route) {
-            SettingsScreen(
-                onNavigateToHome = {
-                    navController.navigate(Screen.Home.route) { launchSingleTop = true }
-                },
-                onNavigateToSearch = {
-                    navController.navigate(Screen.Search.route) { launchSingleTop = true }
-                }
+                onNavigateBack = { navController.popBackStack() }
             )
         }
     }
