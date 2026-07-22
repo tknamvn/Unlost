@@ -34,7 +34,7 @@ fun CenterIllustrationSection() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(240.dp),
+            .height(200.dp),
         contentAlignment = Alignment.Center
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
@@ -44,21 +44,21 @@ fun CenterIllustrationSection() {
             drawLine(
                 color = Color(0xFFCBD5E1),
                 start = Offset(size.width * 0.22f, size.height * 0.35f),
-                end = Offset(center.x - 50.dp.toPx(), center.y - 30.dp.toPx()),
+                end = Offset(center.x - 45.dp.toPx(), center.y - 25.dp.toPx()),
                 strokeWidth = 2.dp.toPx(),
                 pathEffect = stroke
             )
             drawLine(
                 color = Color(0xFFCBD5E1),
                 start = Offset(size.width * 0.78f, size.height * 0.38f),
-                end = Offset(center.x + 50.dp.toPx(), center.y - 10.dp.toPx()),
+                end = Offset(center.x + 45.dp.toPx(), center.y - 10.dp.toPx()),
                 strokeWidth = 2.dp.toPx(),
                 pathEffect = stroke
             )
             drawLine(
                 color = Color(0xFFCBD5E1),
                 start = Offset(size.width * 0.25f, size.height * 0.65f),
-                end = Offset(center.x - 50.dp.toPx(), center.y + 40.dp.toPx()),
+                end = Offset(center.x - 45.dp.toPx(), center.y + 35.dp.toPx()),
                 strokeWidth = 2.dp.toPx(),
                 pathEffect = stroke
             )
@@ -68,21 +68,21 @@ fun CenterIllustrationSection() {
             icon = Icons.Outlined.CreditCard,
             iconTint = Color(0xFFEAB308),
             rotation = -12f,
-            modifier = Modifier.offset(x = (-95).dp, y = (-40).dp)
+            modifier = Modifier.offset(x = (-90).dp, y = (-35).dp)
         )
 
         FloatingCard(
             icon = Icons.AutoMirrored.Outlined.MenuBook,
             iconTint = Color(0xFF334155),
             rotation = 12f,
-            modifier = Modifier.offset(x = 90.dp, y = (-30).dp)
+            modifier = Modifier.offset(x = 85.dp, y = (-25).dp)
         )
 
         FloatingCard(
             icon = Icons.Outlined.Key,
             iconTint = Color(0xFF0E5E53),
             rotation = -8f,
-            modifier = Modifier.offset(x = (-85).dp, y = 45.dp)
+            modifier = Modifier.offset(x = (-80).dp, y = 40.dp)
         )
 
         PhoneFrame()
@@ -91,10 +91,10 @@ fun CenterIllustrationSection() {
 
 @Composable
 private fun PhoneFrame() {
-    val cornerRadius = 22.dp
+    val cornerRadius = 20.dp
     Box(
         modifier = Modifier
-            .size(width = 105.dp, height = 170.dp)
+            .size(width = 100.dp, height = 155.dp)
             .shadow(
                 elevation = 10.dp,
                 shape = RoundedCornerShape(cornerRadius),
@@ -108,11 +108,11 @@ private fun PhoneFrame() {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(80.dp)
+                .height(72.dp)
                 .clip(
                     RoundedCornerShape(
-                        topStart = 12.dp,
-                        topEnd = 12.dp,
+                        topStart = 10.dp,
+                        topEnd = 10.dp,
                         bottomStart = cornerRadius - 2.dp,
                         bottomEnd = cornerRadius - 2.dp
                     )
@@ -137,7 +137,7 @@ private fun FloatingCard(
     rotation: Float,
     modifier: Modifier = Modifier
 ) {
-    val shape = RoundedCornerShape(16.dp)
+    val shape = RoundedCornerShape(14.dp)
     Box(
         modifier = modifier
             .rotate(rotation)

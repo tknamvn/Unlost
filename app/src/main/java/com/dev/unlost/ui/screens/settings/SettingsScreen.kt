@@ -74,7 +74,7 @@ fun SettingsScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding),
-                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
+                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 item {
@@ -105,11 +105,11 @@ private fun SettingsTopBar() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 14.dp),
+            .padding(horizontal = 24.dp, vertical = 14.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text("Cài đặt", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+        Text("Cài đặt", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(16.dp))
@@ -125,8 +125,8 @@ private fun SettingsTopBar() {
 private fun SettingsSection(title: String, content: @Composable () -> Unit) {
     Column {
         Text(title, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B), modifier = Modifier.padding(bottom = 6.dp, start = 4.dp))
-        Card(shape = RoundedCornerShape(20.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(2.dp)) {
-            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) { content() }
+        Card(shape = RoundedCornerShape(22.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(2.dp)) {
+            Column(modifier = Modifier.padding(horizontal = 18.dp, vertical = 6.dp)) { content() }
         }
     }
 }
@@ -138,7 +138,7 @@ private fun SettingsItem(icon: ImageVector, title: String, subtitle: String) {
         Spacer(modifier = Modifier.width(14.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(title, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF0F172A))
-            Text(subtitle, fontSize = 13.sp, color = Color(0xFF64748B))
+            Text(subtitle, fontSize = 14.sp, color = Color(0xFF64748B))
         }
     }
 }
@@ -150,7 +150,7 @@ private fun SettingsToggleItem(icon: ImageVector, title: String, subtitle: Strin
         Spacer(modifier = Modifier.width(14.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(title, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF0F172A))
-            Text(subtitle, fontSize = 13.sp, color = Color(0xFF64748B))
+            Text(subtitle, fontSize = 14.sp, color = Color(0xFF64748B))
         }
         Switch(
             checked = checked,

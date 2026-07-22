@@ -3,8 +3,10 @@ package com.dev.unlost.ui.screens.home
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -67,25 +69,43 @@ fun HomeScreen(
             },
             containerColor = Color.Transparent
         ) { innerPadding ->
-            LazyColumn(
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding),
-                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                    .padding(innerPadding)
             ) {
-                item { HomeVoiceBanner(onBannerClick = onNavigateToAddItem) }
+                // Fixed Pinned Section: Banner + Recent Items Header
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 24.dp, end = 24.dp, top = 14.dp, bottom = 4.dp)
+                ) {
+                    HomeVoiceBanner(onBannerClick = onNavigateToAddItem)
 
-                item { RecentItemsHeader(onViewAllClick = onNavigateToSearch) }
+                    Spacer(modifier = Modifier.height(14.dp))
 
-                if (items.isEmpty()) {
-                    item { EmptyItemsPlaceholder() }
-                } else {
-                    items(items, key = { it.id }) { item ->
-                        ItemCard(
-                            item = item,
-                            onDeleteClick = { viewModel.requestDeleteItem(item) }
-                        )
+                    RecentItemsHeader(onViewAllClick = onNavigateToSearch)
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Scrollable Item Cards List (ONLY item cards scroll)
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    if (items.isEmpty()) {
+                        item { EmptyItemsPlaceholder() }
+                    } else {
+                        items(items, key = { it.id }) { item ->
+                            ItemCard(
+                                item = item,
+                                onDeleteClick = { viewModel.requestDeleteItem(item) }
+                            )
+                        }
                     }
                 }
             }
@@ -102,14 +122,14 @@ private fun RecentItemsHeader(onViewAllClick: () -> Unit) {
     ) {
         Text(
             text = "Mới lưu gần đây",
-            fontSize = 19.sp,
+            fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF0F172A)
         )
         Text(
             text = "Xem tất cả",
-            fontSize = 14.sp,
-            fontWeight = FontWeight.SemiBold,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Bold,
             color = Color(0xFF0E5E53),
             modifier = Modifier.clickable(onClick = onViewAllClick)
         )
@@ -121,7 +141,7 @@ private fun EmptyItemsPlaceholder() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(130.dp),
+            .height(120.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(

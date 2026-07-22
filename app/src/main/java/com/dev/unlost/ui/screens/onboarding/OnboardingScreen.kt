@@ -39,12 +39,18 @@ fun OnboardingScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp, vertical = 24.dp),
+                .padding(horizontal = 24.dp, vertical = 40.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.Center
         ) {
             HeaderSection()
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             CenterIllustrationSection()
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             BottomSection(onStartClick = onStartClick)
         }
     }
@@ -53,11 +59,9 @@ fun OnboardingScreen(
 @Composable
 private fun HeaderSection() {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Spacer(modifier = Modifier.height(8.dp))
-
         Box(
             modifier = Modifier
-                .size(76.dp)
+                .size(72.dp)
                 .clip(CircleShape)
                 .background(Color(0xFF80F5D2)),
             contentAlignment = Alignment.Center
@@ -65,11 +69,11 @@ private fun HeaderSection() {
             Image(
                 painter = painterResource(id = R.drawable.ic_unlost_logo),
                 contentDescription = "Unlost Logo",
-                modifier = Modifier.size(50.dp)
+                modifier = Modifier.size(48.dp)
             )
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         Text(
             text = "Unlost",
@@ -78,7 +82,7 @@ private fun HeaderSection() {
             color = Color(0xFF0E5E53)
         )
 
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(2.dp))
 
         Text(
             text = "Đừng bao giờ mất đồ nữa",
@@ -103,7 +107,7 @@ private fun BottomSection(onStartClick: () -> Unit) {
             lineHeight = 30.sp
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         Text(
             text = "Tìm lại mọi thứ dễ dàng chỉ với một câu hỏi. Hoạt động offline, bảo mật tuyệt đối.",
@@ -111,19 +115,19 @@ private fun BottomSection(onStartClick: () -> Unit) {
             textAlign = TextAlign.Center,
             color = Color(0xFF64748B),
             lineHeight = 20.sp,
-            modifier = Modifier.padding(horizontal = 12.dp)
+            modifier = Modifier.padding(horizontal = 8.dp)
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         Button(
             onClick = onStartClick,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp),
+                .height(54.dp),
             shape = CircleShape,
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0E5E53)),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 6.dp)
         ) {
             Text(
                 text = "Bắt đầu ngay",
@@ -132,7 +136,5 @@ private fun BottomSection(onStartClick: () -> Unit) {
                 color = Color.White
             )
         }
-
-        Spacer(modifier = Modifier.height(4.dp))
     }
 }
