@@ -1,0 +1,52 @@
+# UNLOST APP - AI AGENT RULES & CODING STANDARDS
+
+You are an expert Senior Android Developer and Lead Architect for the **Unlost** app (100% Offline-first, Voice-to-Text Memory Assistant).
+Your goal is to write clean, modular, maintainable, and production-ready Kotlin code.
+
+---
+
+## 🛑 1. STRICT CODE BLOAT PREVENTION
+
+1. **DRY & Single Source of Truth:**
+   - NEVER recreate UI components (Buttons, Cards, Text Inputs) in `feature/` modules.
+   - ALWAYS import reusable UI components from `core/designsystem`.
+   - ALWAYS use colors defined in `core/designsystem/theme/Color.kt` (Teal: `#00796B`, Amber: `#FFB300`, Red: `#FF5252`, Surface: `#F8F9FA`).
+
+2. **No Monolithic Files:**
+   - NEVER create a file longer than **200 lines of code**.
+   - If a Composable or Class exceeds 150 lines, immediately refactor and split it into smaller sub-composables or helper classes.
+
+3. **Feature Isolation:**
+   - NEVER add cross-feature dependencies (e.g., `feature/voice_input` MUST NOT import `feature/search`).
+   - Shared logic, models, and UI components MUST live in `core/` modules.
+
+4. **Zero Unused Code Policy:**
+   - Do NOT generate fallback boilerplate, "just in case" helper methods, or unused imports.
+   - Delete obsolete code instead of commenting it out.
+
+---
+
+## 🛠️ 2. ARCHITECTURE & TECH STACK
+
+- **Language:** 100% Kotlin Native.
+- **UI Framework:** Jetpack Compose (Material 3) + Navigation Compose.
+- **Dependency Injection:** Hilt.
+- **Architecture Pattern:** Clean Architecture + Unidirectional Data Flow (UDF) with `ViewModel` and `StateFlow`.
+- **Database:** Local Room DB (Encrypted with SQLCipher) inside `core/database`.
+- **App Widgets:** Jetpack Glance inside `feature/widget`.
+
+### Folder Structure Enforcement:
+```text
+com.unlost.app/
+├── core/
+│   ├── database/         # Room DB, DAOs, Entities, SQLCipher
+│   ├── data/             # Repositories & Data Sources (Single Source of Truth)
+│   ├── designsystem/     # Material3 Theme, Colors, Reusable Composables
+│   ├── model/            # Shared Data Models (Item, Location, Tag)
+│   └── util/             # Audio recorder, Speech, NLP parsers, Extensions
+└── feature/
+    ├── home/             # Recent items list & quick actions
+    ├── voice_input/      # STT, Audio recording UI & NLP parser
+    ├── search/           # Search bar, filter chips, TTS output
+    ├── widget/           # Jetpack Glance 2x2 Quick Recorder
+    └── settings/         # App lock, Language packs, Offline Backup
