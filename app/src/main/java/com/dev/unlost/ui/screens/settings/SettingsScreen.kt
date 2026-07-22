@@ -75,18 +75,18 @@ fun SettingsScreen(
                     .fillMaxSize()
                     .padding(innerPadding),
                 contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 item {
                     SettingsSection(title = "GIỌNG NÓI & NHẬN DIỆN") {
                         SettingsItem(icon = Icons.Outlined.Language, title = "Gói ngôn ngữ Offline", subtitle = "Tiếng Việt (Đã tải - 45MB)")
-                        SettingsToggleItem(icon = Icons.Outlined.Mic, title = "Tự động ngắt thu âm", subtitle = "Khi ngưng nói 1.5 giây", checked = autoStopMic, onCheckedChange = { autoStopMic = it })
+                        SettingsToggleItem(icon = Icons.Outlined.Mic, title = "Tự động ngắt thu âm", subtitle = "Khi ngưng nói 3.0 giây", checked = autoStopMic, onCheckedChange = { autoStopMic = it })
                         SettingsToggleItem(icon = Icons.AutoMirrored.Outlined.VolumeUp, title = "Đọc kết quả vị trí", subtitle = "Phát giọng nói Text-to-Speech", checked = textToSpeech, onCheckedChange = { textToSpeech = it })
                     }
                 }
                 item {
                     SettingsSection(title = "BẢO MẬT & DỮ LIỆU") {
-                        SettingsToggleItem(icon = Icons.Outlined.Fingerprint, title = "Khóa vân tay / FaceID", subtitle = "Bảo vệ dữ liệu riêng tư", checked = biometricLock, onCheckedChange = { biometricLock = it })
+                        SettingsToggleItem(icon = Icons.Outlined.Fingerprint, title = "Khóa bảo mật PIN", subtitle = "Bảo vệ dữ liệu vị trí riêng tư", checked = biometricLock, onCheckedChange = { biometricLock = it })
                         SettingsItem(icon = Icons.Outlined.Lock, title = "Sao lưu mã hóa", subtitle = "Xuất/Nhập dữ liệu cá nhân")
                     }
                 }
@@ -105,7 +105,7 @@ private fun SettingsTopBar() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 16.dp),
+            .padding(horizontal = 20.dp, vertical = 14.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -124,33 +124,33 @@ private fun SettingsTopBar() {
 @Composable
 private fun SettingsSection(title: String, content: @Composable () -> Unit) {
     Column {
-        Text(title, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B), modifier = Modifier.padding(bottom = 8.dp, start = 4.dp))
+        Text(title, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B), modifier = Modifier.padding(bottom = 6.dp, start = 4.dp))
         Card(shape = RoundedCornerShape(20.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(2.dp)) {
-            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) { content() }
+            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) { content() }
         }
     }
 }
 
 @Composable
 private fun SettingsItem(icon: ImageVector, title: String, subtitle: String) {
-    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
         Icon(icon, contentDescription = null, tint = Color(0xFF0E5E53))
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.width(14.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(title, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF0F172A))
-            Text(subtitle, fontSize = 12.sp, color = Color(0xFF64748B))
+            Text(title, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF0F172A))
+            Text(subtitle, fontSize = 13.sp, color = Color(0xFF64748B))
         }
     }
 }
 
 @Composable
 private fun SettingsToggleItem(icon: ImageVector, title: String, subtitle: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
-    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
         Icon(icon, contentDescription = null, tint = Color(0xFF0E5E53))
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.width(14.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(title, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF0F172A))
-            Text(subtitle, fontSize = 12.sp, color = Color(0xFF64748B))
+            Text(title, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF0F172A))
+            Text(subtitle, fontSize = 13.sp, color = Color(0xFF64748B))
         }
         Switch(
             checked = checked,

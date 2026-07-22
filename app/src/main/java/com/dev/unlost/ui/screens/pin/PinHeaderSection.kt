@@ -55,12 +55,10 @@ fun PinHeaderSection(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(16.dp))
-
         // Top Lock Badge
         Box(
             modifier = Modifier
-                .size(68.dp)
+                .size(72.dp)
                 .clip(CircleShape)
                 .background(Color(0xFF80F5D2)),
             contentAlignment = Alignment.Center
@@ -69,32 +67,32 @@ fun PinHeaderSection(
                 imageVector = Icons.Default.Lock,
                 contentDescription = "Bảo mật",
                 tint = Color(0xFF0E5E53),
-                modifier = Modifier.size(32.dp)
+                modifier = Modifier.size(34.dp)
             )
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         // Title
         Text(
             text = if (uiState.isCreateMode) "Tạo mã PIN bảo mật" else "Nhập mã PIN bảo mật",
-            fontSize = 22.sp,
+            fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF0F172A)
         )
 
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(4.dp))
 
         // Subtitle
         Text(
             text = "Xác thực để truy cập dữ liệu vị trí đồ đạc cá nhân",
-            fontSize = 13.sp,
+            fontSize = 14.sp,
             color = Color(0xFF64748B),
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 32.dp)
+            modifier = Modifier.padding(horizontal = 36.dp)
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         // 4 Dot Indicators with Shake Animation
         Box(
@@ -103,7 +101,7 @@ fun PinHeaderSection(
             PinDotIndicators(enteredPinLength = uiState.enteredPin.length)
         }
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         // Warning / Status Message
         PinStatusMessage(uiState = uiState)
@@ -113,14 +111,14 @@ fun PinHeaderSection(
 @Composable
 private fun PinDotIndicators(enteredPinLength: Int) {
     Row(
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(18.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         for (i in 1..4) {
             val isFilled = i <= enteredPinLength
             Box(
                 modifier = Modifier
-                    .size(18.dp)
+                    .size(22.dp)
                     .clip(CircleShape)
                     .then(
                         if (isFilled) {
