@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.dev.unlost.ui.screens.add_item.AddItemScreen
 import com.dev.unlost.ui.screens.home.HomeScreen
+import com.dev.unlost.ui.screens.onboarding.OnboardingScreen
 import com.dev.unlost.ui.screens.search.SearchScreen
 
 @Composable
@@ -15,8 +16,19 @@ fun NavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Home.route
+        startDestination = Screen.Onboarding.route
     ) {
+        composable(Screen.Onboarding.route) {
+            OnboardingScreen(
+                onStartClick = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Onboarding.route) {
+                            inclusive = true
+                        }
+                    }
+                }
+            )
+        }
         composable(Screen.Home.route) {
             HomeScreen(
                 onNavigateToAddItem = { navController.navigate(Screen.AddItem.route) },

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Subtle Premium Gradient Background -->
+    <path
+        android:pathData="M 24,14 L 84,14 A 10,10 0 0 1 94,24 L 94,84 A 10,10 0 0 1 84,94 L 24,94 A 10,10 0 0 1 14,84 L 14,24 A 10,10 0 0 1 24,14 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="14"
+                android:startY="14"
+                android:endX="94"
+                android:endY="94"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FF0F172A" /> <!-- Dark Slate Navy -->
+                <item android:offset="1.0" android:color="#FF1E293B" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Ultra-Clean Modern 'U' Pin Emblem (Single Iconic Continuous Shape) -->
+    <!-- Combines letter 'U' with a location pin apex at the bottom and rounded sleek stems -->
+    <path
+        android:pathData="M 35,32 
+                          C 35,30 37,28 39,28 
+                          C 41,28 43,30 43,32 
+                          L 43,54 
+                          C 43,62 48,67 54,73 
+                          C 60,67 65,62 65,54 
+                          L 65,32 
+                          C 65,30 67,28 69,28 
+                          C 71,28 73,30 73,32 
+                          L 73,54 
+                          C 73,66 65,74 54,83 
+                          C 43,74 35,66 35,54 
+                          Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="35"
+                android:startY="28"
+                android:endX="73"
+                android:endY="83"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FF00F2FE" /> <!-- Electric Cyan -->
+                <item android:offset="0.5" android:color="#FF38BDF8" /> <!-- Sky Blue -->
+                <item android:offset="1.0" android:color="#FF6366F1" /> <!-- Bright Indigo -->
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Center Pulse Signal / Found Item Dot -->
+    <path
+        android:pathData="M 54,43 A 6.5,6.5 0 1,1 53.9,43 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="47.5"
+                android:startY="36.5"
+                android:endX="60.5"
+                android:endY="49.5"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FF34D399" /> <!-- Emerald Green (Found) -->
+                <item android:offset="1.0" android:color="#FF10B981" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+</vector>
