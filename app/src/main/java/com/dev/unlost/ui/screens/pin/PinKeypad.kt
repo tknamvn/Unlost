@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Backspace
@@ -34,10 +35,11 @@ fun PinKeypad(
 ) {
     Column(
         modifier = modifier
+            .widthIn(max = 320.dp)
             .fillMaxWidth()
-            .padding(horizontal = 28.dp)
+            .padding(horizontal = 36.dp)
             .alpha(if (enabled) 1.0f else 0.4f),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         KeypadRow(digits = listOf("1", "2", "3"), onDigitClick = onDigitClick, enabled = enabled)
@@ -50,13 +52,13 @@ fun PinKeypad(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             // Empty Left Placeholder (Replaces Fingerprint)
-            Box(modifier = Modifier.size(72.dp))
+            Box(modifier = Modifier.size(68.dp))
 
             // Digit 0
             KeypadButton(onClick = { if (enabled) onDigitClick("0") }, enabled = enabled) {
                 Text(
                     text = "0",
-                    fontSize = 28.sp,
+                    fontSize = 32.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF0F172A)
                 )
@@ -68,7 +70,7 @@ fun PinKeypad(
                     imageVector = Icons.AutoMirrored.Outlined.Backspace,
                     contentDescription = "Xóa",
                     tint = Color(0xFF475569),
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(26.dp)
                 )
             }
         }
@@ -89,7 +91,7 @@ private fun KeypadRow(
             KeypadButton(onClick = { if (enabled) onDigitClick(digit) }, enabled = enabled) {
                 Text(
                     text = digit,
-                    fontSize = 28.sp,
+                    fontSize = 32.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF0F172A)
                 )
@@ -107,7 +109,7 @@ private fun KeypadButton(
 ) {
     Box(
         modifier = Modifier
-            .size(72.dp)
+            .size(68.dp)
             .shadow(
                 elevation = 6.dp,
                 shape = CircleShape,

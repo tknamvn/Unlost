@@ -55,24 +55,32 @@ fun PinScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = 20.dp),
+                .padding(vertical = 16.dp),
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Header Section: Lock Badge, Title, 4 Dots & Error/Lockout Status
-            PinHeaderSection(
-                uiState = uiState,
-                shouldShake = shouldShake,
-                onShakeComplete = { shouldShake = false }
-            )
+            Spacer(modifier = Modifier.height(1.dp))
 
-            // Keypad Grid (Disabled when locked out)
-            val isKeypadEnabled = uiState.lockoutRemainingSeconds == 0L && !uiState.isPermanentlyLocked
-            PinKeypad(
-                onDigitClick = viewModel::onDigitClick,
-                onBackspaceClick = viewModel::onBackspaceClick,
-                enabled = isKeypadEnabled
-            )
+            // Centered Compact Unit: Header, Dots, and Keypad
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                PinHeaderSection(
+                    uiState = uiState,
+                    shouldShake = shouldShake,
+                    onShakeComplete = { shouldShake = false }
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                val isKeypadEnabled = uiState.lockoutRemainingSeconds == 0L && !uiState.isPermanentlyLocked
+                PinKeypad(
+                    onDigitClick = viewModel::onDigitClick,
+                    onBackspaceClick = viewModel::onBackspaceClick,
+                    enabled = isKeypadEnabled
+                )
+            }
 
             // Footer Options: Forgot PIN & Offline Security Badge
             PinFooterSection(
@@ -99,7 +107,7 @@ private fun PinFooterSection(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 8.dp),
+            .padding(horizontal = 28.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {

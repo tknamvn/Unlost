@@ -3,7 +3,6 @@ package com.dev.unlost.ui.screens.home
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,9 +24,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.dev.unlost.ui.components.BottomTab
 import com.dev.unlost.ui.components.DeleteConfirmDialog
 import com.dev.unlost.ui.components.ItemCard
-import com.dev.unlost.ui.components.BottomTab
 import com.dev.unlost.ui.components.UnlostBottomNavigationBar
 
 @Composable
@@ -103,7 +102,7 @@ private fun RecentItemsHeader(onViewAllClick: () -> Unit) {
     ) {
         Text(
             text = "Mới lưu gần đây",
-            fontSize = 18.sp,
+            fontSize = 19.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF0F172A)
         )
@@ -122,7 +121,7 @@ private fun EmptyItemsPlaceholder() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(140.dp),
+            .height(130.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(

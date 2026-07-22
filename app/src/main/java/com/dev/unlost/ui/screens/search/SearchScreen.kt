@@ -1,6 +1,5 @@
 package com.dev.unlost.ui.screens.search
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -88,13 +86,13 @@ fun SearchScreen(
                     onQueryChange = viewModel::onQueryChange,
                     onMicClick = onNavigateToAddItem
                 )
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(10.dp))
                 FilterChipsRow(
                     categories = viewModel.categories,
                     selectedCategory = selectedCategory,
                     onCategorySelected = viewModel::onCategorySelected
                 )
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 if (results.isNotEmpty()) {
                     Text(
@@ -143,7 +141,7 @@ private fun SearchInputBar(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp),
-        placeholder = { Text("Tìm kiếm đồ đạc...", fontSize = 15.sp) },
+        placeholder = { Text("Tìm kiếm đồ đạc...", fontSize = 16.sp) },
         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color(0xFF64748B)) },
         trailingIcon = {
             Row(verticalAlignment = Alignment.CenterVertically) {

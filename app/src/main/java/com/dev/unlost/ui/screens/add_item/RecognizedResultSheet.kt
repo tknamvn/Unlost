@@ -50,7 +50,7 @@ fun RecognizedResultSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp),
+                .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
@@ -60,7 +60,7 @@ fun RecognizedResultSheet(
                     .background(Color(0xFFE2E8F0))
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -82,7 +82,7 @@ fun RecognizedResultSheet(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
             RecognizedFieldCard(
                 label = "Tên đồ vật",
@@ -92,7 +92,7 @@ fun RecognizedResultSheet(
                 placeholder = "Ví dụ: Chìa khóa nhà"
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             RecognizedFieldCard(
                 label = "Vị trí",
@@ -111,19 +111,19 @@ fun RecognizedResultSheet(
                 )
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(18.dp))
 
             Button(
                 onClick = onSaveClick,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp),
+                    .height(54.dp),
                 shape = CircleShape,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0E5E53))
             ) {
                 Text(
                     text = "Lưu vị trí",
-                    fontSize = 16.sp,
+                    fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
@@ -145,7 +145,7 @@ private fun RecognizedFieldCard(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFEFF7F5))
     ) {
-        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+        Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
             Text(
                 text = label,
                 fontSize = 13.sp,
