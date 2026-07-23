@@ -86,7 +86,7 @@ fun HomeScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f),
-                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 4.dp),
+                    contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 4.dp, bottom = 80.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     if (items.isEmpty()) {

@@ -30,6 +30,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,12 +43,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(
+    viewModel: SettingsViewModel = hiltViewModel()
+) {
     var autoStopMic by remember { mutableStateOf(true) }
     var textToSpeech by remember { mutableStateOf(true) }
-    var biometricLock by remember { mutableStateOf(true) }
+    val isPinLockEnabled by viewModel.isPinLockEnabled.collectAsState()
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFFF8FAFA)) {
         Scaffold(
@@ -58,7 +62,7 @@ fun SettingsScreen() {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding),
-                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp),
+                contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 12.dp, bottom = 80.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 item {
@@ -70,7 +74,13 @@ fun SettingsScreen() {
                 }
                 item {
                     SettingsSection(title = "BẢO MẬT & DỮ LIỆU") {
-                        SettingsToggleItem(icon = Icons.Outlined.Fingerprint, title = "Khóa bảo mật PIN", subtitle = "Bảo vệ dữ liệu vị trí riêng tư", checked = biometricLock, onCheckedChange = { biometricLock = it })
+                        SettingsToggleItem(
+                            icon = Icons.Outlined.Fingerprint,
+                            title = "Khóa bảo mật PIN",
+                            subtitle = "Yêu cầu mã PIN khi mở ứng dụng",
+                            checked = isPinLockEnabled,
+                            onCheckedChange = viewModel::togglePinLock
+                        )
                         SettingsItem(icon = Icons.Outlined.Lock, title = "Sao lưu mã hóa", subtitle = "Xuất/Nhập dữ liệu cá nhân")
                     }
                 }

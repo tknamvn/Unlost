@@ -1,9 +1,16 @@
 package com.dev.unlost.ui.navigation
 
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -22,7 +29,8 @@ import com.dev.unlost.ui.screens.settings.SettingsScreen
 
 @Composable
 fun NavGraph(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    startDestination: String = Screen.Home.route
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -34,40 +42,20 @@ fun NavGraph(
         else -> null
     }
 
-    Scaffold(
-        bottomBar = {
-            if (currentTab != null) {
-                UnlostBottomNavigationBar(
-                    currentTab = currentTab,
-                    onTabSelected = { tab ->
-                        val targetRoute = when (tab) {
-                            BottomTab.HOME -> Screen.Home.route
-                            BottomTab.SEARCH -> Screen.Search.route
-                            BottomTab.SETTINGS -> Screen.Settings.route
-                        }
-                        if (currentRoute != targetRoute) {
-                            navController.navigate(targetRoute) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        }
-                    }
-                )
-            }
-        }
-    ) { innerPadding ->
+    Box(modifier = Modifier.fillMaxSize()) {
         NavHost(
             navController = navController,
-            startDestination = Screen.Onboarding.route,
-            modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
+            startDestination = startDestination,
+            modifier = Modifier.fillMaxSize(),
+            enterTransition = { fadeIn(animationSpec = tween(300)) },
+            exitTransition = { fadeOut(animationSpec = tween(300)) }
         ) {
             composable(Screen.Onboarding.route) {
+                val context = androidx.compose.ui.platform.LocalContext.current
                 OnboardingScreen(
                     onStartClick = {
-                        navController.navigate(Screen.SecurityPin.route) {
+                        com.dev.unlost.util.OnboardingManager(context).completeOnboarding()
+                        navController.navigate(Screen.Home.route) {
                             popUpTo(Screen.Onboarding.route) {
                                 inclusive = true
                             }
@@ -112,6 +100,41 @@ fun NavGraph(
             }
             composable(Screen.Settings.route) {
                 SettingsScreen()
+            }
+        }
+
+        AnimatedVisibility(
+            visible = currentTab != null,
+            modifier = Modifier.align(Alignment.BottomCenter),
+            enter = fadeIn(animationSpec = tween(300)) + slideInVertically(
+                initialOffsetY = { it },
+                animationSpec = tween(300)
+            ),
+            exit = fadeOut(animationSpec = tween(200)) + slideOutVertically(
+                targetOffsetY = { it },
+                animationSpec = tween(200)
+            )
+        ) {
+            if (currentTab != null) {
+                UnlostBottomNavigationBar(
+                    currentTab = currentTab,
+                    onTabSelected = { tab ->
+                        val targetRoute = when (tab) {
+                            BottomTab.HOME -> Screen.Home.route
+                            BottomTab.SEARCH -> Screen.Search.route
+                            BottomTab.SETTINGS -> Screen.Settings.route
+                        }
+                        if (currentRoute != targetRoute) {
+                            navController.navigate(targetRoute) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    }
+                )
             }
         }
     }

@@ -13,6 +13,14 @@ class SecurityPinManager @Inject constructor(
     private val prefs: SharedPreferences =
         context.getSharedPreferences("unlost_security_prefs", Context.MODE_PRIVATE)
 
+    fun isPinLockEnabled(): Boolean {
+        return prefs.getBoolean(KEY_PIN_ENABLED, false)
+    }
+
+    fun setPinLockEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_PIN_ENABLED, enabled).apply()
+    }
+
     fun hasPinSet(): Boolean {
         return prefs.getString(KEY_USER_PIN, null) != null
     }
@@ -93,6 +101,7 @@ class SecurityPinManager @Inject constructor(
     }
 
     companion object {
+        private const val KEY_PIN_ENABLED = "key_pin_enabled"
         private const val KEY_USER_PIN = "key_user_pin"
         private const val KEY_PHONE_NUMBER = "key_phone_number"
         private const val KEY_FAILED_ATTEMPTS = "key_failed_attempts"
