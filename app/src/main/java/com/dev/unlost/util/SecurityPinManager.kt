@@ -18,7 +18,23 @@ class SecurityPinManager @Inject constructor(
     }
 
     fun setPinLockEnabled(enabled: Boolean) {
-        prefs.edit().putBoolean(KEY_PIN_ENABLED, enabled).apply()
+        if (!enabled) {
+            clearPin()
+        } else {
+            prefs.edit().putBoolean(KEY_PIN_ENABLED, true).apply()
+        }
+    }
+
+    fun clearPin() {
+        prefs.edit()
+            .putBoolean(KEY_PIN_ENABLED, false)
+            .remove(KEY_USER_PIN)
+            .remove(KEY_PHONE_NUMBER)
+            .putInt(KEY_FAILED_ATTEMPTS, 0)
+            .putInt(KEY_LOCKOUT_TIER, 0)
+            .putLong(KEY_LOCKOUT_END_TIME, 0L)
+            .putBoolean(KEY_PERM_LOCKED, false)
+            .apply()
     }
 
     fun hasPinSet(): Boolean {

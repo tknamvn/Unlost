@@ -11,9 +11,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,16 +36,18 @@ import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun PinScreen(
-    onNavigateToHome: () -> Unit,
+    onNavigateToHome: (createdPin: String?) -> Unit,
+    onBackClick: (() -> Unit)? = null,
     viewModel: PinViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var shouldShake by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
+        viewModel.refreshState()
         viewModel.uiEvent.collect { event ->
             when (event) {
-                is PinUiEvent.NavigateToHome -> onNavigateToHome()
+                is PinUiEvent.NavigateToHome -> onNavigateToHome(event.createdPin)
                 is PinUiEvent.TriggerShake -> shouldShake = true
             }
         }
@@ -59,7 +64,25 @@ fun PinScreen(
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(1.dp))
+            if (onBackClick != null) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .statusBarsPadding()
+                        .padding(start = 12.dp, top = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Quay lại",
+                            tint = Color(0xFF0F172A)
+                        )
+                    }
+                }
+            } else {
+                Spacer(modifier = Modifier.height(1.dp))
+            }
 
             // Centered Compact Unit: Header, Dots, and Keypad
             Column(

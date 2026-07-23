@@ -13,6 +13,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,6 +48,9 @@ fun NavGraph(
     val pinManager = remember { SecurityPinManager(context) }
     val onboardingManager = remember { OnboardingManager(context) }
 
+    var draftPinEnabled by rememberSaveable { mutableStateOf(false) }
+    var draftPin by rememberSaveable { mutableStateOf<String?>(null) }
+
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
@@ -79,33 +83,31 @@ fun NavGraph(
                         navController.navigate(Screen.SecurityPin.route + "?fromOnboarding=true")
                     },
                     onSelectSkip = {
-                        pinManager.setPinLockEnabled(false)
+                        draftPinEnabled = false
+                        draftPin = null
                         navController.navigate(Screen.SecurityCustom.route)
                     }
                 )
             }
 
             composable(Screen.SecurityCustom.route) {
-                var isPinEnabled by remember { mutableStateOf(pinManager.isPinLockEnabled()) }
-                var savedPin by remember { mutableStateOf(pinManager.getSavedPin()) }
-
-                LaunchedEffect(Unit) {
-                    isPinEnabled = pinManager.isPinLockEnabled()
-                    savedPin = pinManager.getSavedPin()
-                }
-
                 SecurityCustomScreen(
-                    isPinEnabled = isPinEnabled,
-                    savedPin = savedPin,
+                    isPinEnabled = draftPinEnabled,
                     onBackClick = { navController.popBackStack() },
                     onRequestSetPin = {
                         navController.navigate(Screen.SecurityPin.route + "?fromOnboarding=true")
                     },
                     onDisablePin = {
-                        pinManager.setPinLockEnabled(false)
-                        isPinEnabled = false
+                        draftPinEnabled = false
+                        draftPin = null
                     },
                     onGoToHomeClick = {
+                        if (draftPinEnabled && !draftPin.isNullOrEmpty()) {
+                            pinManager.savePin(draftPin!!)
+                            pinManager.setPinLockEnabled(true)
+                        } else {
+                            pinManager.clearPin()
+                        }
                         onboardingManager.completeOnboarding()
                         navController.navigate(Screen.Home.route) {
                             popUpTo(Screen.Onboarding.route) {
@@ -127,21 +129,32 @@ fun NavGraph(
             ) { backStackEntry ->
                 val fromOnboarding = backStackEntry.arguments?.getBoolean("fromOnboarding") ?: false
                 PinScreen(
-                    onNavigateToHome = {
+                    onNavigateToHome = { createdPin ->
                         if (fromOnboarding) {
+                            if (!createdPin.isNullOrEmpty()) {
+                                draftPin = createdPin
+                                draftPinEnabled = true
+                            }
                             navController.navigate(Screen.SecurityCustom.route) {
                                 popUpTo(Screen.SecurityChoice.route) {
                                     inclusive = false
                                 }
                             }
                         } else {
+                            if (!createdPin.isNullOrEmpty()) {
+                                pinManager.savePin(createdPin)
+                                pinManager.setPinLockEnabled(true)
+                            }
                             navController.navigate(Screen.Home.route) {
                                 popUpTo(Screen.SecurityPin.route) {
                                     inclusive = true
                                 }
                             }
                         }
-                    }
+                    },
+                    onBackClick = if (fromOnboarding) {
+                        { navController.popBackStack() }
+                    } else null
                 )
             }
 

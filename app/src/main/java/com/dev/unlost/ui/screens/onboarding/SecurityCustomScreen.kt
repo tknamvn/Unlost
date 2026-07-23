@@ -46,7 +46,6 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun SecurityCustomScreen(
     isPinEnabled: Boolean,
-    savedPin: String?,
     onBackClick: () -> Unit,
     onRequestSetPin: () -> Unit,
     onDisablePin: () -> Unit,
@@ -133,7 +132,6 @@ fun SecurityCustomScreen(
 
                     PinSettingToggleCard(
                         isPinEnabled = isPinEnabled,
-                        savedPin = savedPin,
                         onToggleChange = { checked ->
                             if (checked) {
                                 onRequestSetPin()
@@ -180,7 +178,6 @@ fun SecurityCustomScreen(
 @Composable
 private fun PinSettingToggleCard(
     isPinEnabled: Boolean,
-    savedPin: String?,
     onToggleChange: (Boolean) -> Unit
 ) {
     Card(
@@ -226,7 +223,7 @@ private fun PinSettingToggleCard(
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = if (isPinEnabled && !savedPin.isNullOrEmpty()) "Đang bật (Mã: $savedPin)" else "Đang tắt",
+                        text = if (isPinEnabled) "Đang bật" else "Đang tắt",
                         fontSize = 13.sp,
                         color = Color(0xFF64748B)
                     )

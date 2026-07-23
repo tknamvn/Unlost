@@ -26,7 +26,7 @@ data class PinUiState(
 )
 
 sealed class PinUiEvent {
-    object NavigateToHome : PinUiEvent()
+    data class NavigateToHome(val createdPin: String? = null) : PinUiEvent()
     object TriggerShake : PinUiEvent()
 }
 
@@ -44,9 +44,15 @@ class PinViewModel @Inject constructor(
     private var countdownJob: Job? = null
 
     init {
+        refreshState()
+    }
+
+    fun refreshState() {
         val hasPin = pinManager.hasPinSet()
         _uiState.value = _uiState.value.copy(
             isCreateMode = !hasPin,
+            enteredPin = "",
+            errorMessage = null,
             remainingAttempts = 4 - pinManager.getFailedAttempts()
         )
         checkLockoutStatus()
@@ -103,13 +109,11 @@ class PinViewModel @Inject constructor(
 
     private fun processPinSubmission(pin: String) {
         if (_uiState.value.isCreateMode) {
-            pinManager.savePin(pin)
-            pinManager.setPinLockEnabled(true)
-            viewModelScope.launch { _uiEvent.emit(PinUiEvent.NavigateToHome) }
+            viewModelScope.launch { _uiEvent.emit(PinUiEvent.NavigateToHome(createdPin = pin)) }
         } else {
             if (pinManager.verifyPin(pin)) {
                 pinManager.resetLockoutState()
-                viewModelScope.launch { _uiEvent.emit(PinUiEvent.NavigateToHome) }
+                viewModelScope.launch { _uiEvent.emit(PinUiEvent.NavigateToHome()) }
             } else {
                 viewModelScope.launch { _uiEvent.emit(PinUiEvent.TriggerShake) }
                 handleWrongPin()
@@ -155,6 +159,6 @@ class PinViewModel @Inject constructor(
             isPermanentlyLocked = false,
             showRecoverySheet = false
         )
-        viewModelScope.launch { _uiEvent.emit(PinUiEvent.NavigateToHome) }
+        viewModelScope.launch { _uiEvent.emit(PinUiEvent.NavigateToHome()) }
     }
 }
