@@ -62,7 +62,7 @@ fun NavGraph(
         NavHost(
             navController = navController,
             startDestination = Screen.Onboarding.route,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
         ) {
             composable(Screen.Onboarding.route) {
                 OnboardingScreen(

@@ -17,14 +17,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.CreditCard
-import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Key
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -44,7 +42,7 @@ import java.util.Locale
 @Composable
 fun ItemCard(
     item: LostItem,
-    onDeleteClick: () -> Unit,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
     isTopMatch: Boolean = false
 ) {
@@ -52,6 +50,7 @@ fun ItemCard(
     val cardBorder = if (isTopMatch) Color(0xFF76F7D4) else Color.Transparent
 
     Card(
+        onClick = onClick,
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = cardBg),
@@ -125,13 +124,8 @@ fun ItemCard(
 
                 Spacer(modifier = Modifier.width(8.dp))
 
-                Column(horizontalAlignment = Alignment.End) {
-                    if (!isTopMatch) {
-                        Text(text = formatTimeAgo(item.timestamp), fontSize = 12.sp, color = Color(0xFF94A3B8))
-                    }
-                    IconButton(onClick = onDeleteClick, modifier = Modifier.size(28.dp)) {
-                        Icon(Icons.Outlined.Delete, contentDescription = "Xóa đồ vật", tint = Color(0xFFEF4444), modifier = Modifier.size(18.dp))
-                    }
+                if (!isTopMatch) {
+                    Text(text = formatTimeAgo(item.timestamp), fontSize = 12.sp, color = Color(0xFF94A3B8))
                 }
             }
         }

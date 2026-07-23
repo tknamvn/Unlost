@@ -30,7 +30,7 @@ fun HomeTopBar() {
         modifier = Modifier
             .fillMaxWidth()
             .statusBarsPadding()
-            .padding(start = 24.dp, end = 24.dp, top = 18.dp, bottom = 6.dp),
+            .padding(start = 24.dp, end = 24.dp, top = 8.dp, bottom = 6.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {

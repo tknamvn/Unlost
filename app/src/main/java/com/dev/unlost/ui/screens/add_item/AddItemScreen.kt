@@ -197,7 +197,7 @@ private fun VoiceTopBar(
         modifier = Modifier
             .fillMaxWidth()
             .statusBarsPadding()
-            .padding(start = 16.dp, end = 16.dp, top = 18.dp, bottom = 6.dp),
+            .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 6.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {

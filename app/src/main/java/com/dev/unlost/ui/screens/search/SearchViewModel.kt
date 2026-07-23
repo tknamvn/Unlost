@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.dev.unlost.domain.model.LostItem
 import com.dev.unlost.domain.usecase.DeleteItemUseCase
 import com.dev.unlost.domain.usecase.SearchItemsUseCase
+import com.dev.unlost.domain.usecase.UpdateItemUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +22,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val searchItemsUseCase: SearchItemsUseCase,
-    private val deleteItemUseCase: DeleteItemUseCase
+    private val deleteItemUseCase: DeleteItemUseCase,
+    private val updateItemUseCase: UpdateItemUseCase
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
@@ -32,8 +34,8 @@ class SearchViewModel @Inject constructor(
 
     val categories = listOf("Tất cả", "Chìa khóa", "Ví", "Giấy tờ")
 
-    private val _itemToDelete = MutableStateFlow<LostItem?>(null)
-    val itemToDelete: StateFlow<LostItem?> = _itemToDelete.asStateFlow()
+    private val _itemToEdit = MutableStateFlow<LostItem?>(null)
+    val itemToEdit: StateFlow<LostItem?> = _itemToEdit.asStateFlow()
 
     val searchResults: StateFlow<List<LostItem>> = combine(_searchQuery, _selectedCategory) { query, category ->
         Pair(query, category)
@@ -54,19 +56,30 @@ class SearchViewModel @Inject constructor(
         _selectedCategory.value = category
     }
 
-    fun requestDeleteItem(item: LostItem) {
-        _itemToDelete.value = item
+    fun requestEditItem(item: LostItem) {
+        _itemToEdit.value = item
     }
 
-    fun dismissDeleteDialog() {
-        _itemToDelete.value = null
+    fun dismissEditSheet() {
+        _itemToEdit.value = null
     }
 
-    fun confirmDeleteItem() {
-        val item = _itemToDelete.value ?: return
+    fun saveEditedItem(updatedItem: LostItem) {
+        viewModelScope.launch {
+            updateItemUseCase(updatedItem)
+            dismissEditSheet()
+        }
+    }
+
+    fun deleteItem(item: LostItem) {
         viewModelScope.launch {
             deleteItemUseCase(item)
-            _itemToDelete.value = null
+        }
+    }
+
+    fun undoDeleteItem(item: LostItem) {
+        viewModelScope.launch {
+            updateItemUseCase(item)
         }
     }
 }
