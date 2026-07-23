@@ -34,15 +34,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.dev.unlost.ui.components.BottomTab
 import com.dev.unlost.ui.components.DeleteConfirmDialog
 import com.dev.unlost.ui.components.ItemCard
-import com.dev.unlost.ui.components.UnlostBottomNavigationBar
 
 @Composable
 fun SearchScreen(
-    onNavigateToHome: () -> Unit,
-    onNavigateToSettings: () -> Unit,
     onNavigateToAddItem: () -> Unit,
     viewModel: SearchViewModel = hiltViewModel()
 ) {
@@ -61,18 +57,6 @@ fun SearchScreen(
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFFF8FAFA)) {
         Scaffold(
-            bottomBar = {
-                UnlostBottomNavigationBar(
-                    currentTab = BottomTab.SEARCH,
-                    onTabSelected = { tab ->
-                        when (tab) {
-                            BottomTab.HOME -> onNavigateToHome()
-                            BottomTab.SEARCH -> { }
-                            BottomTab.SETTINGS -> onNavigateToSettings()
-                        }
-                    }
-                )
-            },
             containerColor = Color.Transparent
         ) { innerPadding ->
             Column(

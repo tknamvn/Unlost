@@ -42,14 +42,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.dev.unlost.ui.components.BottomTab
-import com.dev.unlost.ui.components.UnlostBottomNavigationBar
 
 @Composable
-fun SettingsScreen(
-    onNavigateToHome: () -> Unit,
-    onNavigateToSearch: () -> Unit
-) {
+fun SettingsScreen() {
     var autoStopMic by remember { mutableStateOf(true) }
     var textToSpeech by remember { mutableStateOf(true) }
     var biometricLock by remember { mutableStateOf(true) }
@@ -57,18 +52,6 @@ fun SettingsScreen(
     Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFFF8FAFA)) {
         Scaffold(
             topBar = { SettingsTopBar() },
-            bottomBar = {
-                UnlostBottomNavigationBar(
-                    currentTab = BottomTab.SETTINGS,
-                    onTabSelected = { tab ->
-                        when (tab) {
-                            BottomTab.HOME -> onNavigateToHome()
-                            BottomTab.SEARCH -> onNavigateToSearch()
-                            BottomTab.SETTINGS -> { }
-                        }
-                    }
-                )
-            },
             containerColor = Color.Transparent
         ) { innerPadding ->
             LazyColumn(
