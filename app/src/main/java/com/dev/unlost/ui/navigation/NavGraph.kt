@@ -4,7 +4,9 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -66,8 +68,48 @@ fun NavGraph(
             navController = navController,
             startDestination = startDestination,
             modifier = Modifier.fillMaxSize(),
-            enterTransition = { fadeIn(animationSpec = tween(300)) },
-            exitTransition = { fadeOut(animationSpec = tween(300)) }
+            enterTransition = {
+                val initialIdx = getRouteIndex(initialState.destination.route)
+                val targetIdx = getRouteIndex(targetState.destination.route)
+                if (targetIdx < initialIdx) {
+                    slideInHorizontally(
+                        initialOffsetX = { fullWidth -> -fullWidth },
+                        animationSpec = tween(durationMillis = 300)
+                    ) + fadeIn(animationSpec = tween(durationMillis = 300))
+                } else {
+                    slideInHorizontally(
+                        initialOffsetX = { fullWidth -> fullWidth },
+                        animationSpec = tween(durationMillis = 300)
+                    ) + fadeIn(animationSpec = tween(durationMillis = 300))
+                }
+            },
+            exitTransition = {
+                val initialIdx = getRouteIndex(initialState.destination.route)
+                val targetIdx = getRouteIndex(targetState.destination.route)
+                if (targetIdx < initialIdx) {
+                    slideOutHorizontally(
+                        targetOffsetX = { fullWidth -> fullWidth / 3 },
+                        animationSpec = tween(durationMillis = 300)
+                    ) + fadeOut(animationSpec = tween(durationMillis = 300))
+                } else {
+                    slideOutHorizontally(
+                        targetOffsetX = { fullWidth -> -fullWidth / 3 },
+                        animationSpec = tween(durationMillis = 300)
+                    ) + fadeOut(animationSpec = tween(durationMillis = 300))
+                }
+            },
+            popEnterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { fullWidth -> -fullWidth / 3 },
+                    animationSpec = tween(durationMillis = 300)
+                ) + fadeIn(animationSpec = tween(durationMillis = 300))
+            },
+            popExitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { fullWidth -> fullWidth },
+                    animationSpec = tween(durationMillis = 300)
+                ) + fadeOut(animationSpec = tween(durationMillis = 300))
+            }
         ) {
             composable(Screen.Onboarding.route) {
                 OnboardingScreen(
@@ -79,6 +121,7 @@ fun NavGraph(
 
             composable(Screen.SecurityChoice.route) {
                 SecurityChoiceScreen(
+                    onBackClick = { navController.popBackStack() },
                     onSelectSetPin = {
                         navController.navigate(Screen.SecurityPin.route + "?fromOnboarding=true")
                     },
@@ -221,5 +264,19 @@ fun NavGraph(
                 )
             }
         }
+    }
+}
+
+private fun getRouteIndex(route: String?): Int {
+    return when {
+        route == Screen.Onboarding.route -> -3
+        route == Screen.SecurityChoice.route -> -2
+        route == Screen.SecurityCustom.route -> -1
+        route == Screen.Home.route -> 0
+        route == Screen.Search.route -> 1
+        route == Screen.Settings.route -> 2
+        route == Screen.AddItem.route -> 3
+        route?.startsWith(Screen.SecurityPin.route) == true -> -1
+        else -> 0
     }
 }

@@ -16,7 +16,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Dialpad
 import androidx.compose.material.icons.outlined.LockReset
@@ -24,6 +26,7 @@ import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,6 +41,7 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun SecurityChoiceScreen(
+    onBackClick: () -> Unit,
     onSelectSetPin: () -> Unit,
     onSelectSkip: () -> Unit
 ) {
@@ -48,51 +52,68 @@ fun SecurityChoiceScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp, vertical = 36.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .statusBarsPadding()
+                .padding(horizontal = 24.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Box(
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFF80F5D2)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Shield,
-                    contentDescription = "Bảo mật",
-                    tint = Color(0xFF0E5E53),
-                    modifier = Modifier.size(44.dp)
-                )
+            Column(modifier = Modifier.fillMaxWidth()) {
+                IconButton(onClick = onBackClick) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Quay lại",
+                        tint = Color(0xFF0F172A)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(80.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF80F5D2)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Shield,
+                            contentDescription = "Bảo mật",
+                            tint = Color(0xFF0E5E53),
+                            modifier = Modifier.size(44.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Text(
+                        text = "Tăng cường bảo mật",
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF0F172A)
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = "Bạn có muốn đặt mã PIN để bảo vệ danh sách đồ đạc của mình, tránh người khác truy cập trái phép không?",
+                        fontSize = 15.sp,
+                        color = Color(0xFF64748B),
+                        textAlign = TextAlign.Center,
+                        lineHeight = 22.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(36.dp))
+
+                    SetPinOptionCard(onClick = onSelectSetPin)
+
+                    Spacer(modifier = Modifier.height(18.dp))
+
+                    SkipOptionCard(onClick = onSelectSkip)
+                }
             }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Text(
-                text = "Tăng cường bảo mật",
-                fontSize = 26.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF0F172A)
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = "Bạn có muốn đặt mã PIN để bảo vệ danh sách đồ đạc của mình, tránh người khác truy cập trái phép không?",
-                fontSize = 15.sp,
-                color = Color(0xFF64748B),
-                textAlign = TextAlign.Center,
-                lineHeight = 22.sp
-            )
-
-            Spacer(modifier = Modifier.height(36.dp))
-
-            SetPinOptionCard(onClick = onSelectSetPin)
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            SkipOptionCard(onClick = onSelectSkip)
         }
     }
 }
