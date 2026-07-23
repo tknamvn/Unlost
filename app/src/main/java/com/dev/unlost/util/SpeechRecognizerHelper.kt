@@ -19,6 +19,7 @@ import javax.inject.Singleton
 sealed class SpeechState {
     object Idle : SpeechState()
     object Listening : SpeechState()
+    data class PartialResult(val result: String) : SpeechState()
     data class Success(val result: String) : SpeechState()
     data class Error(val message: String) : SpeechState()
 }
@@ -51,6 +52,7 @@ class SpeechRecognizerHelper @Inject constructor(
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
             putExtra(RecognizerIntent.EXTRA_LANGUAGE, "vi-VN")
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "vi-VN")
+            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
             putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 3000L)
             putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 3000L)
             putExtra("android.speech.extras.SPEECH_INPUT_MINIMUM_SPEECH_LENGTH_MILLIS", 3000L)
@@ -99,7 +101,13 @@ class SpeechRecognizerHelper @Inject constructor(
                 }
             }
 
-            override fun onPartialResults(partialResults: Bundle?) {}
+            override fun onPartialResults(partialResults: Bundle?) {
+                val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                if (!matches.isNullOrEmpty()) {
+                    trySend(SpeechState.PartialResult(matches[0]))
+                    resetSilenceTimer()
+                }
+            }
             override fun onEvent(eventType: Int, params: Bundle?) {}
         }
 

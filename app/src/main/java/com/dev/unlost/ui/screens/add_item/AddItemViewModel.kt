@@ -21,6 +21,7 @@ data class AddItemUiState(
     val title: String = "",
     val location: String = "",
     val description: String = "",
+    val spokenText: String = "",
     val isRecording: Boolean = false,
     val errorMessage: String? = null
 )
@@ -58,15 +59,26 @@ class AddItemViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isRecording = true, errorMessage = null)
+            _uiState.value = _uiState.value.copy(
+                isRecording = true,
+                spokenText = "",
+                errorMessage = null
+            )
             speechRecognizerHelper.startListening().collect { state ->
                 when (state) {
                     is SpeechState.Listening -> {
                         _uiState.value = _uiState.value.copy(isRecording = true, errorMessage = null)
                     }
+                    is SpeechState.PartialResult -> {
+                        _uiState.value = _uiState.value.copy(
+                            spokenText = state.result,
+                            isRecording = true
+                        )
+                    }
                     is SpeechState.Success -> {
                         val parsed = parseVoiceInputUseCase(state.result)
                         _uiState.value = _uiState.value.copy(
+                            spokenText = state.result,
                             title = parsed.title,
                             location = parsed.location,
                             isRecording = false
