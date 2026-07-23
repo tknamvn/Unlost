@@ -39,16 +39,23 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+import com.dev.unlost.ui.components.InteractiveSwipeBackContainer
+
 @Composable
 fun SecurityChoiceScreen(
     onBackClick: () -> Unit,
     onSelectSetPin: () -> Unit,
-    onSelectSkip: () -> Unit
+    onSelectSkip: () -> Unit,
+    targetPageContent: (@Composable () -> Unit)? = null
 ) {
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = Color(0xFFF8FAFA)
+    InteractiveSwipeBackContainer(
+        onBack = onBackClick,
+        targetPageContent = targetPageContent
     ) {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = Color(0xFFF8FAFA)
+        ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -116,6 +123,7 @@ fun SecurityChoiceScreen(
             }
         }
     }
+}
 }
 
 @Composable

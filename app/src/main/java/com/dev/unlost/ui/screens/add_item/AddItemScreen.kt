@@ -49,9 +49,12 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dev.unlost.ui.components.VoiceRecordButton
 
+import com.dev.unlost.ui.components.InteractiveSwipeBackContainer
+
 @Composable
 fun AddItemScreen(
     onNavigateBack: () -> Unit,
+    targetPageContent: (@Composable () -> Unit)? = null,
     viewModel: AddItemViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -74,10 +77,14 @@ fun AddItemScreen(
         }
     }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = Color(0xFFFAFBFB)
+    InteractiveSwipeBackContainer(
+        onBack = onNavigateBack,
+        targetPageContent = targetPageContent
     ) {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = Color(0xFFFAFBFB)
+        ) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.SpaceBetween
@@ -119,6 +126,7 @@ fun AddItemScreen(
             )
         }
     }
+}
 }
 
 @Composable

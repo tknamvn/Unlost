@@ -34,10 +34,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 
+import com.dev.unlost.ui.components.InteractiveSwipeBackContainer
+
 @Composable
 fun PinScreen(
     onNavigateToHome: (createdPin: String?) -> Unit,
     onBackClick: (() -> Unit)? = null,
+    targetPageContent: (@Composable () -> Unit)? = null,
     viewModel: PinViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -53,10 +56,15 @@ fun PinScreen(
         }
     }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = Color(0xFFF8FAFA)
+    InteractiveSwipeBackContainer(
+        onBack = { onBackClick?.invoke() },
+        enabled = onBackClick != null,
+        targetPageContent = targetPageContent
     ) {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = Color(0xFFF8FAFA)
+        ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -116,6 +124,7 @@ fun PinScreen(
             )
         }
     }
+}
 }
 
 @Composable
