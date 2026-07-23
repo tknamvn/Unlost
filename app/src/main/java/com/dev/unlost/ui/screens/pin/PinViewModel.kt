@@ -104,6 +104,7 @@ class PinViewModel @Inject constructor(
     private fun processPinSubmission(pin: String) {
         if (_uiState.value.isCreateMode) {
             pinManager.savePin(pin)
+            pinManager.setPinLockEnabled(true)
             viewModelScope.launch { _uiEvent.emit(PinUiEvent.NavigateToHome) }
         } else {
             if (pinManager.verifyPin(pin)) {

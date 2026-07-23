@@ -25,6 +25,10 @@ class SecurityPinManager @Inject constructor(
         return prefs.getString(KEY_USER_PIN, null) != null
     }
 
+    fun getSavedPin(): String? {
+        return prefs.getString(KEY_USER_PIN, null)
+    }
+
     fun savePin(pin: String, phoneNumber: String = "") {
         prefs.edit()
             .putString(KEY_USER_PIN, pin)

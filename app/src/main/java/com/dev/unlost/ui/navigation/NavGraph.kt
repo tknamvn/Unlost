@@ -9,29 +9,44 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.dev.unlost.ui.components.BottomTab
 import com.dev.unlost.ui.components.UnlostBottomNavigationBar
 import com.dev.unlost.ui.screens.add_item.AddItemScreen
 import com.dev.unlost.ui.screens.home.HomeScreen
 import com.dev.unlost.ui.screens.onboarding.OnboardingScreen
+import com.dev.unlost.ui.screens.onboarding.SecurityChoiceScreen
+import com.dev.unlost.ui.screens.onboarding.SecurityCustomScreen
 import com.dev.unlost.ui.screens.pin.PinScreen
 import com.dev.unlost.ui.screens.search.SearchScreen
 import com.dev.unlost.ui.screens.settings.SettingsScreen
+import com.dev.unlost.util.OnboardingManager
+import com.dev.unlost.util.SecurityPinManager
 
 @Composable
 fun NavGraph(
     navController: NavHostController = rememberNavController(),
     startDestination: String = Screen.Home.route
 ) {
+    val context = LocalContext.current
+    val pinManager = remember { SecurityPinManager(context) }
+    val onboardingManager = remember { OnboardingManager(context) }
+
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
@@ -51,10 +66,47 @@ fun NavGraph(
             exitTransition = { fadeOut(animationSpec = tween(300)) }
         ) {
             composable(Screen.Onboarding.route) {
-                val context = androidx.compose.ui.platform.LocalContext.current
                 OnboardingScreen(
                     onStartClick = {
-                        com.dev.unlost.util.OnboardingManager(context).completeOnboarding()
+                        navController.navigate(Screen.SecurityChoice.route)
+                    }
+                )
+            }
+
+            composable(Screen.SecurityChoice.route) {
+                SecurityChoiceScreen(
+                    onSelectSetPin = {
+                        navController.navigate(Screen.SecurityPin.route + "?fromOnboarding=true")
+                    },
+                    onSelectSkip = {
+                        pinManager.setPinLockEnabled(false)
+                        navController.navigate(Screen.SecurityCustom.route)
+                    }
+                )
+            }
+
+            composable(Screen.SecurityCustom.route) {
+                var isPinEnabled by remember { mutableStateOf(pinManager.isPinLockEnabled()) }
+                var savedPin by remember { mutableStateOf(pinManager.getSavedPin()) }
+
+                LaunchedEffect(Unit) {
+                    isPinEnabled = pinManager.isPinLockEnabled()
+                    savedPin = pinManager.getSavedPin()
+                }
+
+                SecurityCustomScreen(
+                    isPinEnabled = isPinEnabled,
+                    savedPin = savedPin,
+                    onBackClick = { navController.popBackStack() },
+                    onRequestSetPin = {
+                        navController.navigate(Screen.SecurityPin.route + "?fromOnboarding=true")
+                    },
+                    onDisablePin = {
+                        pinManager.setPinLockEnabled(false)
+                        isPinEnabled = false
+                    },
+                    onGoToHomeClick = {
+                        onboardingManager.completeOnboarding()
                         navController.navigate(Screen.Home.route) {
                             popUpTo(Screen.Onboarding.route) {
                                 inclusive = true
@@ -63,17 +115,36 @@ fun NavGraph(
                     }
                 )
             }
-            composable(Screen.SecurityPin.route) {
+
+            composable(
+                route = Screen.SecurityPin.route + "?fromOnboarding={fromOnboarding}",
+                arguments = listOf(
+                    navArgument("fromOnboarding") {
+                        type = NavType.BoolType
+                        defaultValue = false
+                    }
+                )
+            ) { backStackEntry ->
+                val fromOnboarding = backStackEntry.arguments?.getBoolean("fromOnboarding") ?: false
                 PinScreen(
                     onNavigateToHome = {
-                        navController.navigate(Screen.Home.route) {
-                            popUpTo(Screen.SecurityPin.route) {
-                                inclusive = true
+                        if (fromOnboarding) {
+                            navController.navigate(Screen.SecurityCustom.route) {
+                                popUpTo(Screen.SecurityChoice.route) {
+                                    inclusive = false
+                                }
+                            }
+                        } else {
+                            navController.navigate(Screen.Home.route) {
+                                popUpTo(Screen.SecurityPin.route) {
+                                    inclusive = true
+                                }
                             }
                         }
                     }
                 )
             }
+
             composable(Screen.Home.route) {
                 HomeScreen(
                     onNavigateToAddItem = { navController.navigate(Screen.AddItem.route) },
