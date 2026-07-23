@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,11 +23,17 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,53 +41,42 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.dev.unlost.ui.components.BottomTab
-import com.dev.unlost.ui.components.DeleteConfirmDialog
-import com.dev.unlost.ui.components.ItemCard
-import com.dev.unlost.ui.components.UnlostBottomNavigationBar
+import com.dev.unlost.domain.model.LostItem
+import com.dev.unlost.ui.components.EditItemBottomSheet
+import com.dev.unlost.ui.components.SwipeableItemCard
+import kotlinx.coroutines.launch
 
 @Composable
 fun SearchScreen(
-    onNavigateToHome: () -> Unit,
-    onNavigateToSettings: () -> Unit,
     onNavigateToAddItem: () -> Unit,
     viewModel: SearchViewModel = hiltViewModel()
 ) {
     val query by viewModel.searchQuery.collectAsState()
     val selectedCategory by viewModel.selectedCategory.collectAsState()
     val results by viewModel.searchResults.collectAsState()
-    val itemToDelete by viewModel.itemToDelete.collectAsState()
+    val itemToEdit by viewModel.itemToEdit.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
-    itemToDelete?.let { item ->
-        DeleteConfirmDialog(
+    itemToEdit?.let { item ->
+        EditItemBottomSheet(
             item = item,
-            onConfirm = { viewModel.confirmDeleteItem() },
-            onDismiss = { viewModel.dismissDeleteDialog() }
+            onSave = viewModel::saveEditedItem,
+            onDismiss = viewModel::dismissEditSheet
         )
     }
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFFF8FAFA)) {
         Scaffold(
-            bottomBar = {
-                UnlostBottomNavigationBar(
-                    currentTab = BottomTab.SEARCH,
-                    onTabSelected = { tab ->
-                        when (tab) {
-                            BottomTab.HOME -> onNavigateToHome()
-                            BottomTab.SEARCH -> { }
-                            BottomTab.SETTINGS -> onNavigateToSettings()
-                        }
-                    }
-                )
-            },
+            snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
             containerColor = Color.Transparent
-        ) { innerPadding ->
+        ) { _ ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
+                    .statusBarsPadding()
+                    .padding(top = 8.dp)
             ) {
-                Spacer(modifier = Modifier.height(10.dp))
                 SearchInputBar(
                     query = query,
                     onQueryChange = viewModel::onQueryChange,
@@ -104,14 +100,17 @@ fun SearchScreen(
                     )
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp),
+                        contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 8.dp, bottom = 80.dp),
                         verticalArrangement = Arrangement.spacedBy(14.dp)
                     ) {
                         itemsIndexed(results, key = { _, item -> item.id }) { index, item ->
-                            ItemCard(
+                            SwipeableItemCard(
                                 item = item,
                                 isTopMatch = index == 0 && (query.isNotEmpty() || selectedCategory != "Tất cả"),
-                                onDeleteClick = { viewModel.requestDeleteItem(item) }
+                                onEditClick = { viewModel.requestEditItem(item) },
+                                onDelete = {
+                                    handleSearchItemDelete(item, viewModel, snackbarHostState, scope)
+                                }
                             )
                         }
                     }
@@ -125,6 +124,25 @@ fun SearchScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+private fun handleSearchItemDelete(
+    item: LostItem,
+    viewModel: SearchViewModel,
+    snackbarHostState: SnackbarHostState,
+    scope: kotlinx.coroutines.CoroutineScope
+) {
+    viewModel.deleteItem(item)
+    scope.launch {
+        val result = snackbarHostState.showSnackbar(
+            message = "Đã xóa \"${item.title}\"",
+            actionLabel = "Hoàn tác",
+            duration = SnackbarDuration.Short
+        )
+        if (result == SnackbarResult.ActionPerformed) {
+            viewModel.undoDeleteItem(item)
         }
     }
 }

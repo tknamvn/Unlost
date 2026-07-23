@@ -14,11 +14,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,26 +32,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.dev.unlost.ui.components.BottomTab
-import com.dev.unlost.ui.components.DeleteConfirmDialog
-import com.dev.unlost.ui.components.ItemCard
-import com.dev.unlost.ui.components.UnlostBottomNavigationBar
+import com.dev.unlost.domain.model.LostItem
+import com.dev.unlost.ui.components.EditItemBottomSheet
+import com.dev.unlost.ui.components.SwipeableItemCard
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
     onNavigateToAddItem: () -> Unit,
     onNavigateToSearch: () -> Unit,
-    onNavigateToSettings: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val items by viewModel.itemList.collectAsState()
-    val itemToDelete by viewModel.itemToDelete.collectAsState()
+    val itemToEdit by viewModel.itemToEdit.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
-    itemToDelete?.let { item ->
-        DeleteConfirmDialog(
+    itemToEdit?.let { item ->
+        EditItemBottomSheet(
             item = item,
-            onConfirm = { viewModel.confirmDeleteItem() },
-            onDismiss = { viewModel.dismissDeleteDialog() }
+            onSave = viewModel::saveEditedItem,
+            onDismiss = viewModel::dismissEditSheet
         )
     }
 
@@ -55,18 +62,7 @@ fun HomeScreen(
     ) {
         Scaffold(
             topBar = { HomeTopBar() },
-            bottomBar = {
-                UnlostBottomNavigationBar(
-                    currentTab = BottomTab.HOME,
-                    onTabSelected = { tab ->
-                        when (tab) {
-                            BottomTab.HOME -> { }
-                            BottomTab.SEARCH -> onNavigateToSearch()
-                            BottomTab.SETTINGS -> onNavigateToSettings()
-                        }
-                    }
-                )
-            },
+            snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
             containerColor = Color.Transparent
         ) { innerPadding ->
             Column(
@@ -74,41 +70,59 @@ fun HomeScreen(
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                // Fixed Pinned Section: Banner + Recent Items Header
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 24.dp, end = 24.dp, top = 14.dp, bottom = 4.dp)
                 ) {
                     HomeVoiceBanner(onBannerClick = onNavigateToAddItem)
-
                     Spacer(modifier = Modifier.height(14.dp))
-
                     RecentItemsHeader(onViewAllClick = onNavigateToSearch)
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Scrollable Item Cards List (ONLY item cards scroll)
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f),
-                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 4.dp),
+                    contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 4.dp, bottom = 80.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     if (items.isEmpty()) {
                         item { EmptyItemsPlaceholder() }
                     } else {
                         items(items, key = { it.id }) { item ->
-                            ItemCard(
+                            SwipeableItemCard(
                                 item = item,
-                                onDeleteClick = { viewModel.requestDeleteItem(item) }
+                                onEditClick = { viewModel.requestEditItem(item) },
+                                onDelete = {
+                                    handleItemDelete(item, viewModel, snackbarHostState, scope)
+                                }
                             )
                         }
                     }
                 }
             }
+        }
+    }
+}
+
+private fun handleItemDelete(
+    item: LostItem,
+    viewModel: HomeViewModel,
+    snackbarHostState: SnackbarHostState,
+    scope: kotlinx.coroutines.CoroutineScope
+) {
+    viewModel.deleteItem(item)
+    scope.launch {
+        val result = snackbarHostState.showSnackbar(
+            message = "Đã xóa \"${item.title}\"",
+            actionLabel = "Hoàn tác",
+            duration = SnackbarDuration.Short
+        )
+        if (result == SnackbarResult.ActionPerformed) {
+            viewModel.undoDeleteItem(item)
         }
     }
 }
