@@ -46,6 +46,7 @@ import com.dev.unlost.ui.components.EditItemBottomSheet
 import com.dev.unlost.ui.components.SwipeableItemCard
 import kotlinx.coroutines.launch
 
+
 @Composable
 fun SearchScreen(
     onNavigateToAddItem: () -> Unit,
@@ -66,7 +67,10 @@ fun SearchScreen(
         )
     }
 
-    Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFFF8FAFA)) {
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = Color(0xFFF8FAFA)
+    ) {
         Scaffold(
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
             containerColor = Color.Transparent

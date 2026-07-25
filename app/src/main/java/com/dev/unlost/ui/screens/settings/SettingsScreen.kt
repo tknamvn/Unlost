@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 
+
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
@@ -53,7 +54,10 @@ fun SettingsScreen(
     var textToSpeech by remember { mutableStateOf(true) }
     val isPinLockEnabled by viewModel.isPinLockEnabled.collectAsState()
 
-    Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFFF8FAFA)) {
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = Color(0xFFF8FAFA)
+    ) {
         Scaffold(
             topBar = { SettingsTopBar() },
             containerColor = Color.Transparent

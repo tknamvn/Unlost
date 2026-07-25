@@ -34,10 +34,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 
+import com.dev.unlost.ui.components.InteractiveSwipeBackContainer
+
 @Composable
 fun PinScreen(
     onNavigateToHome: (createdPin: String?) -> Unit,
     onBackClick: (() -> Unit)? = null,
+    targetPageContent: (@Composable () -> Unit)? = null,
     viewModel: PinViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -53,25 +56,25 @@ fun PinScreen(
         }
     }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = Color(0xFFF8FAFA)
+    InteractiveSwipeBackContainer(
+        onBack = { onBackClick?.invoke() },
+        enabled = onBackClick != null,
+        targetPageContent = targetPageContent
     ) {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = Color(0xFFF8FAFA)
+        ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(vertical = 16.dp),
+                .statusBarsPadding()
+                .padding(horizontal = 24.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (onBackClick != null) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .statusBarsPadding()
-                        .padding(start = 12.dp, top = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                if (onBackClick != null) {
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -79,9 +82,9 @@ fun PinScreen(
                             tint = Color(0xFF0F172A)
                         )
                     }
+                } else {
+                    Spacer(modifier = Modifier.height(48.dp))
                 }
-            } else {
-                Spacer(modifier = Modifier.height(1.dp))
             }
 
             // Centered Compact Unit: Header, Dots, and Keypad
@@ -121,6 +124,7 @@ fun PinScreen(
             )
         }
     }
+}
 }
 
 @Composable
