@@ -30,6 +30,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,14 +46,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 
-
 @Composable
 fun SettingsScreen(
+    onNavigateToSetPin: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     var autoStopMic by remember { mutableStateOf(true) }
     var textToSpeech by remember { mutableStateOf(true) }
     val isPinLockEnabled by viewModel.isPinLockEnabled.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.refreshPinLockState()
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -83,7 +88,9 @@ fun SettingsScreen(
                             title = "Khóa bảo mật PIN",
                             subtitle = "Yêu cầu mã PIN khi mở ứng dụng",
                             checked = isPinLockEnabled,
-                            onCheckedChange = viewModel::togglePinLock
+                            onCheckedChange = { enabled ->
+                                viewModel.onPinToggleChanged(enabled, onNavigateToSetPin)
+                            }
                         )
                         SettingsItem(icon = Icons.Outlined.Lock, title = "Sao lưu mã hóa", subtitle = "Xuất/Nhập dữ liệu cá nhân")
                     }

@@ -1,52 +1,130 @@
-# UNLOST APP - AI AGENT RULES & CODING STANDARDS
+# ==============================================================================
+# 📍 UNLOST APP - STRICT CODE & ARCHITECTURE RULES
+# Standard Guidelines for AI Agents & Developers
+# ==============================================================================
 
-You are an expert Senior Android Developer and Lead Architect for the **Unlost** app (100% Offline-first, Voice-to-Text Memory Assistant).
-Your goal is to write clean, modular, maintainable, and production-ready Kotlin code.
+You are an expert Senior Android Architect and Lead Developer for the **Unlost** app.
+**Unlost** is a 100% Offline-First, Voice-to-Text Memory & Item Tracking Assistant built natively in Kotlin.
 
----
-
-## 🛑 1. STRICT CODE BLOAT PREVENTION
-
-1. **DRY & Single Source of Truth:**
-   - NEVER recreate UI components (Buttons, Cards, Text Inputs) in `feature/` modules.
-   - ALWAYS import reusable UI components from `core/designsystem`.
-   - ALWAYS use colors defined in `core/designsystem/theme/Color.kt` (Teal: `#00796B`, Amber: `#FFB300`, Red: `#FF5252`, Surface: `#F8F9FA`).
-
-2. **No Monolithic Files:**
-   - NEVER create a file longer than **200 lines of code**.
-   - If a Composable or Class exceeds 150 lines, immediately refactor and split it into smaller sub-composables or helper classes.
-
-3. **Feature Isolation:**
-   - NEVER add cross-feature dependencies (e.g., `feature/voice_input` MUST NOT import `feature/search`).
-   - Shared logic, models, and UI components MUST live in `core/` modules.
-
-4. **Zero Unused Code Policy:**
-   - Do NOT generate fallback boilerplate, "just in case" helper methods, or unused imports.
-   - Delete obsolete code instead of commenting it out.
+Every line of code generated, file created, or architecture decision made MUST strictly obey the following rules. Zero exceptions.
 
 ---
 
-## 🛠️ 2. ARCHITECTURE & TECH STACK
+## 🎯 CORE PHILOSOPHY & OBJECTIVES
+1. **Clean Code & Zero Bloat:** Code must be modular, self-documenting, lightweight, and single-purpose.
+2. **Offline-First & Privacy:** 100% local storage (Room + SQLCipher). No unauthorized network calls or telemetry.
+3. **Performance & Instant UX:** Fast startup (< 500ms), 60 FPS Compose rendering, zero UI-thread blocking.
+4. **Robustness:** Graceful error handling, zero unhandled crashes, memory leak prevention.
 
-- **Language:** 100% Kotlin Native.
-- **UI Framework:** Jetpack Compose (Material 3) + Navigation Compose.
-- **Dependency Injection:** Hilt.
-- **Architecture Pattern:** Clean Architecture + Unidirectional Data Flow (UDF) with `ViewModel` and `StateFlow`.
-- **Database:** Local Room DB (Encrypted with SQLCipher) inside `core/database`.
-- **App Widgets:** Jetpack Glance inside `feature/widget`.
+---
 
-### Folder Structure Enforcement:
-```text
-com.unlost.app/
-├── core/
-│   ├── database/         # Room DB, DAOs, Entities, SQLCipher
-│   ├── data/             # Repositories & Data Sources (Single Source of Truth)
-│   ├── designsystem/     # Material3 Theme, Colors, Reusable Composables
-│   ├── model/            # Shared Data Models (Item, Location, Tag)
-│   └── util/             # Audio recorder, Speech, NLP parsers, Extensions
-└── feature/
-    ├── home/             # Recent items list & quick actions
-    ├── voice_input/      # STT, Audio recording UI & NLP parser
-    ├── search/           # Search bar, filter chips, TTS output
-    ├── widget/           # Jetpack Glance 2x2 Quick Recorder
-    └── settings/         # App lock, Language packs, Offline Backup
+## 🛑 RULE 1: FILE & CODE BLOAT PREVENTION
+1. **File Length Limit:**
+   - NO file shall exceed **200 lines of code** (excluding imports/header comments).
+   - If a file approaches 150-180 lines, proactively split it into modular sub-composables, helper classes, or extensions.
+2. **Function & Composable Limits:**
+   - Composable functions MUST NOT exceed **50 lines**. Split screen layouts into small, focused sub-composables.
+   - Standard functions/methods MUST NOT exceed **30 lines**.
+3. **Zero Dead / Placeholder Code:**
+   - NEVER generate unused boilerplate, speculative helper functions ("just in case"), or commented-out dead code.
+   - All imports MUST be optimized and free of unused references.
+4. **Single Source of Truth (DRY Principles):**
+   - Shared UI components (Buttons, TextField, Dialogs, Cards) MUST be defined in `core/designsystem` (or `ui/components`). NEVER re-implement custom UI elements in feature screens.
+   - Theme tokens (Colors, Typography, Shapes, Spacing) MUST strictly come from `MaterialTheme.colorScheme` / `core/designsystem/theme`. No hardcoded hex colors or static dimension values in features.
+
+---
+
+## 🏗️ RULE 2: CLEAN ARCHITECTURE & MVVM + UDF
+Enforce strict separation across 3 layers:
+
+1. **UI Layer (`ui/` or `feature/`):**
+   - Contains Jetpack Compose Screens, ViewModels, UI State (`UiState`), and UI Events (`UiEvent`).
+   - ViewModels expose state via immutable `StateFlow<UiState>`.
+   - **STRICT:** UI layer MUST NOT directly import Room DB, DAOs, or data entities.
+
+2. **Domain Layer (`domain/`):**
+   - Contains pure Kotlin Use Cases, Domain Models, and Repository Interfaces.
+   - **STRICT:** Domain layer MUST be **100% Pure Kotlin**. ZERO dependencies on `android.*` framework APIs or Jetpack Compose UI elements.
+
+3. **Data Layer (`data/`):**
+   - Contains Repository implementations, Room Database, DAOs, Data Sources, and SQLCipher integration.
+   - Strictly maps Data Entities (`@Entity`) to Domain Models via explicit mapper functions (`Entity.toDomain()`, `Domain.toEntity()`).
+
+4. **Unidirectional Data Flow (UDF):**
+   - `UI Action` ➔ `ViewModel Event` ➔ `UseCase / Repository` ➔ `State Flow Update` ➔ `UI Render`.
+
+---
+
+## ⚡ RULE 3: JETPACK COMPOSE & PERFORMANCE STANDARDS
+1. **Recomposition Optimization:**
+   - Always use immutable data classes for `UiState` (`data class` with `val`).
+   - Use `derivedStateOf` for values computed from other dynamic states.
+   - Pass lambda event handlers (`(String) -> Unit`) or method references instead of passing ViewModels down the composable tree.
+   - Use explicit `key` parameter in `LazyColumn` / `LazyRow` items (`items(items, key = { it.id })`).
+2. **State Hoisting:**
+   - Keep screen-level composables stateless by hoisting state to ViewModel.
+   - Reusable UI components must accept state parameters and pass event callbacks upward.
+3. **Side Effect Safety:**
+   - Use `LaunchedEffect`, `DisposableEffect`, or `rememberUpdatedState` properly.
+   - NEVER execute side effects (DB writes, navigation, audio recording) directly in the body of a Composable function.
+
+---
+
+## 💉 RULE 4: DEPENDENCY INJECTION (HILT)
+1. **Standard Injection:**
+   - Annotate all ViewModels with `@HiltViewModel` and `@Inject constructor`.
+   - Bind Repository interfaces to implementation using Hilt `@Module` and `@Binds` (or `@Provides`).
+2. **Scope Rules:**
+   - Database and Data Store singletons must be `@Singleton`.
+   - Do NOT inject `Context` directly into ViewModels; inject Application Context or dedicated wrapper utilities (`@ApplicationContext context: Context`).
+
+---
+
+## 💾 RULE 5: DATA STORAGE & OFFLINE SECURITY
+1. **Room & SQLCipher:**
+   - Local database queries MUST run asynchronously on `Dispatchers.IO` using Kotlin `Flow` or `suspend` functions.
+   - Database passphrase/encryption must be securely handled without hardcoding keys in source code.
+2. **State Persistence:**
+   - Use DataStore for lightweight preferences (Theme, Sound, App Lock settings).
+
+---
+
+## 🗣️ RULE 6: SPEECH-TO-TEXT & VIETNAMESE NLP
+1. **Audio & STT Management:**
+   - Encapsulate `SpeechRecognizer` and Audio Recorder inside dedicated utility/manager classes in `util/` or `data/voice/`.
+   - Always clean up and release audio resources in `onCleared()` or `DisposableEffect` to prevent memory leaks.
+2. **Natural Language Parser (NLP):**
+   - Vietnamese parsing logic for extracting `[ItemName]`, `[Location]`, `[Category]`, and `[Time]` MUST be deterministic, pure Kotlin, and 100% unit-tested.
+
+---
+
+## 🛡️ RULE 7: EXCEPTION HANDLING & ERROR RESILIENCE
+1. **No-Swallow Policy:**
+   - NEVER use empty `catch` blocks or ignore errors silently.
+   - Data / Domain calls MUST return a `Result<T>` or `Resource<T>` wrapper (`Success`, `Error`, `Loading`).
+2. **User Feedback:**
+   - Exceptions must map to clear, user-friendly messages in Vietnamese (e.g., "Không thể nhận diện giọng nói", "Lỗi lưu trữ dữ liệu").
+
+---
+
+## 🧪 RULE 8: NAMING CONVENTIONS & CODE FORMATTING
+1. **Naming Conventions:**
+   - **Composables:** PascalCase (e.g., `HomeScreen`, `ItemCard`, `VoiceInputBar`).
+   - **ViewModels:** `[Feature]ViewModel` (e.g., `HomeViewModel`, `SearchViewModel`).
+   - **State / Events:** `[Feature]UiState`, `[Feature]UiEvent`.
+   - **UseCases:** Verb + Noun + `UseCase` (e.g., `GetItemsUseCase`, `ParseVoiceTextUseCase`).
+   - **Repositories:** `[Entity]Repository` (Interface) and `[Entity]RepositoryImpl` (Implementation).
+2. **Code Formatting:**
+   - Standard 4-space indentation.
+   - Clean, descriptive variable and function names in English; UI user-facing text localized in Vietnamese.
+
+---
+
+## 📝 CHECKLIST BEFORE SUBMITTING ANY CODE
+- [ ] Does the file comply with the < 200 lines limit?
+- [ ] Are all Composables < 50 lines?
+- [ ] Are all UI components using `core/designsystem` tokens instead of hardcoded values?
+- [ ] Is Domain layer 100% pure Kotlin without Android dependencies?
+- [ ] Are room/DB queries running on `Dispatchers.IO`?
+- [ ] Are speech/audio resources properly disposed of?
+- [ ] Are all errors properly wrapped in `Result`/`Resource` and surfaced to the UI?

@@ -176,9 +176,7 @@ fun NavGraph(
                             }
                         }
                     },
-                    onBackClick = if (fromOnboarding) {
-                        { navController.popBackStack() }
-                    } else null,
+                    onBackClick = { navController.popBackStack() },
                     targetPageContent = if (fromOnboarding) {
                         { SecurityChoiceScreen(onBackClick = {}, onSelectSetPin = {}, onSelectSkip = {}) }
                     } else null
@@ -187,17 +185,20 @@ fun NavGraph(
 
             composable(Screen.Home.route) {
                 MainPagerScreen(
-                    onNavigateToAddItem = { navController.navigate(Screen.AddItem.route) }
+                    onNavigateToAddItem = { navController.navigate(Screen.AddItem.route) },
+                    onNavigateToSetPin = { navController.navigate(Screen.SecurityPin.route) }
                 )
             }
             composable(Screen.Search.route) {
                 MainPagerScreen(
-                    onNavigateToAddItem = { navController.navigate(Screen.AddItem.route) }
+                    onNavigateToAddItem = { navController.navigate(Screen.AddItem.route) },
+                    onNavigateToSetPin = { navController.navigate(Screen.SecurityPin.route) }
                 )
             }
             composable(Screen.Settings.route) {
                 MainPagerScreen(
-                    onNavigateToAddItem = { navController.navigate(Screen.AddItem.route) }
+                    onNavigateToAddItem = { navController.navigate(Screen.AddItem.route) },
+                    onNavigateToSetPin = { navController.navigate(Screen.SecurityPin.route) }
                 )
             }
             composable(Screen.AddItem.route) {
