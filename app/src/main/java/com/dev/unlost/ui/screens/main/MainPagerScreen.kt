@@ -17,7 +17,8 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun MainPagerScreen(
-    onNavigateToAddItem: () -> Unit
+    onNavigateToAddItem: () -> Unit,
+    onNavigateToSetPin: () -> Unit = {}
 ) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(
@@ -65,7 +66,9 @@ fun MainPagerScreen(
                 1 -> SearchScreen(
                     onNavigateToAddItem = onNavigateToAddItem
                 )
-                2 -> SettingsScreen()
+                2 -> SettingsScreen(
+                    onNavigateToSetPin = onNavigateToSetPin
+                )
             }
         }
     }

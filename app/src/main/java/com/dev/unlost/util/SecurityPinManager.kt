@@ -2,7 +2,12 @@ package com.dev.unlost.util
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.security.MessageDigest
+import java.security.SecureRandom
+import java.util.Base64
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -10,25 +15,37 @@ import javax.inject.Singleton
 class SecurityPinManager @Inject constructor(
     @ApplicationContext context: Context
 ) {
-    private val prefs: SharedPreferences =
-        context.getSharedPreferences("unlost_security_prefs", Context.MODE_PRIVATE)
+    private val prefs: SharedPreferences = createEncryptedPrefs(context)
 
-    fun isPinLockEnabled(): Boolean {
-        return prefs.getBoolean(KEY_PIN_ENABLED, false)
+    private fun createEncryptedPrefs(context: Context): SharedPreferences {
+        return try {
+            val masterKey = MasterKey.Builder(context)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build()
+
+            EncryptedSharedPreferences.create(
+                context,
+                "unlost_security_encrypted_prefs",
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+        } catch (e: Throwable) {
+            context.getSharedPreferences("unlost_security_prefs_fallback", Context.MODE_PRIVATE)
+        }
     }
 
+    fun isPinLockEnabled(): Boolean = prefs.getBoolean(KEY_PIN_ENABLED, false)
+
     fun setPinLockEnabled(enabled: Boolean) {
-        if (!enabled) {
-            clearPin()
-        } else {
-            prefs.edit().putBoolean(KEY_PIN_ENABLED, true).apply()
-        }
+        if (!enabled) clearPin() else prefs.edit().putBoolean(KEY_PIN_ENABLED, true).apply()
     }
 
     fun clearPin() {
         prefs.edit()
             .putBoolean(KEY_PIN_ENABLED, false)
-            .remove(KEY_USER_PIN)
+            .remove(KEY_HASHED_PIN)
+            .remove(KEY_PIN_SALT)
             .remove(KEY_PHONE_NUMBER)
             .putInt(KEY_FAILED_ATTEMPTS, 0)
             .putInt(KEY_LOCKOUT_TIER, 0)
@@ -37,18 +54,16 @@ class SecurityPinManager @Inject constructor(
             .apply()
     }
 
-    fun hasPinSet(): Boolean {
-        return prefs.getString(KEY_USER_PIN, null) != null
-    }
-
-    fun getSavedPin(): String? {
-        return prefs.getString(KEY_USER_PIN, null)
-    }
+    fun hasPinSet(): Boolean = prefs.getString(KEY_HASHED_PIN, null) != null
 
     fun savePin(pin: String, phoneNumber: String = "") {
+        val salt = generateSalt()
+        val hashedPin = hashPin(pin, salt)
         prefs.edit()
-            .putString(KEY_USER_PIN, pin)
+            .putString(KEY_PIN_SALT, salt)
+            .putString(KEY_HASHED_PIN, hashedPin)
             .putString(KEY_PHONE_NUMBER, phoneNumber)
+            .putBoolean(KEY_PIN_ENABLED, true)
             .putInt(KEY_FAILED_ATTEMPTS, 0)
             .putInt(KEY_LOCKOUT_TIER, 0)
             .putLong(KEY_LOCKOUT_END_TIME, 0L)
@@ -57,16 +72,15 @@ class SecurityPinManager @Inject constructor(
     }
 
     fun verifyPin(enteredPin: String): Boolean {
-        val savedPin = prefs.getString(KEY_USER_PIN, null)
-        return savedPin != null && savedPin == enteredPin
+        val savedHash = prefs.getString(KEY_HASHED_PIN, null) ?: return false
+        val salt = prefs.getString(KEY_PIN_SALT, null) ?: return false
+        return hashPin(enteredPin, salt) == savedHash
     }
 
     fun getFailedAttempts(): Int = prefs.getInt(KEY_FAILED_ATTEMPTS, 0)
 
     fun recordFailedAttempt(): LockoutStatus {
-        if (isPermanentlyLocked()) {
-            return LockoutStatus.PermanentlyLocked
-        }
+        if (isPermanentlyLocked()) return LockoutStatus.PermanentlyLocked
 
         val currentFailed = getFailedAttempts() + 1
         prefs.edit().putInt(KEY_FAILED_ATTEMPTS, currentFailed).apply()
@@ -76,11 +90,11 @@ class SecurityPinManager @Inject constructor(
             prefs.edit().putInt(KEY_LOCKOUT_TIER, tier).putInt(KEY_FAILED_ATTEMPTS, 0).apply()
 
             val durationSeconds = when (tier) {
-                1 -> 60L        // 1 min
-                2 -> 300L       // 5 mins
-                3 -> 900L       // 15 mins
-                4 -> 1800L      // 30 mins
-                else -> -1L     // Permanent
+                1 -> 60L
+                2 -> 300L
+                3 -> 900L
+                4 -> 1800L
+                else -> -1L
             }
 
             if (durationSeconds == -1L) {
@@ -114,6 +128,18 @@ class SecurityPinManager @Inject constructor(
             .apply()
     }
 
+    private fun generateSalt(): String {
+        val randomBytes = ByteArray(16)
+        SecureRandom().nextBytes(randomBytes)
+        return Base64.getEncoder().encodeToString(randomBytes)
+    }
+
+    private fun hashPin(pin: String, salt: String): String {
+        val md = MessageDigest.getInstance("SHA-256")
+        val digest = md.digest((pin + salt).toByteArray(Charsets.UTF_8))
+        return digest.joinToString("") { "%02x".format(it) }
+    }
+
     sealed class LockoutStatus {
         data class Active(val remainingAttempts: Int) : LockoutStatus()
         data class TemporarilyLocked(val seconds: Long) : LockoutStatus()
@@ -122,7 +148,8 @@ class SecurityPinManager @Inject constructor(
 
     companion object {
         private const val KEY_PIN_ENABLED = "key_pin_enabled"
-        private const val KEY_USER_PIN = "key_user_pin"
+        private const val KEY_HASHED_PIN = "key_hashed_pin"
+        private const val KEY_PIN_SALT = "key_pin_salt"
         private const val KEY_PHONE_NUMBER = "key_phone_number"
         private const val KEY_FAILED_ATTEMPTS = "key_failed_attempts"
         private const val KEY_LOCKOUT_TIER = "key_lockout_tier"
