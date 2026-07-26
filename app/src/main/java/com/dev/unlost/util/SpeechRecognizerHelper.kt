@@ -28,7 +28,7 @@ sealed class SpeechState {
 class SpeechRecognizerHelper @Inject constructor(
     @param:ApplicationContext private val context: Context
 ) {
-    fun startListening(): Flow<SpeechState> = callbackFlow {
+    fun startListening(autoStopEnabled: Boolean = true, timeoutSeconds: Int = 5): Flow<SpeechState> = callbackFlow {
         if (!SpeechRecognizer.isRecognitionAvailable(context)) {
             trySend(SpeechState.Error("Tính năng nhận diện giọng nói không hỗ trợ trên thiết bị này"))
             close()
@@ -40,11 +40,14 @@ class SpeechRecognizerHelper @Inject constructor(
 
         fun resetSilenceTimer() {
             silenceJob?.cancel()
-            silenceJob = launch {
-                delay(3000L) // 3 seconds silence timeout
-                try {
-                    speechRecognizer.stopListening()
-                } catch (_: Exception) {}
+            if (autoStopEnabled) {
+                silenceJob = launch {
+                    val timeoutMs = (timeoutSeconds.coerceIn(2, 10)) * 1000L
+                    delay(timeoutMs)
+                    try {
+                        speechRecognizer.stopListening()
+                    } catch (_: Exception) {}
+                }
             }
         }
 

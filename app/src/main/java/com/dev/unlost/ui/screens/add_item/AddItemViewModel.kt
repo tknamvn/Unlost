@@ -7,6 +7,7 @@ import com.dev.unlost.domain.usecase.AddItemUseCase
 import com.dev.unlost.domain.usecase.ParseVoiceInputUseCase
 import com.dev.unlost.util.SpeechRecognizerHelper
 import com.dev.unlost.util.SpeechState
+import com.dev.unlost.util.VoiceSettingsManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,7 +36,8 @@ sealed class AddItemUiEvent {
 class AddItemViewModel @Inject constructor(
     private val addItemUseCase: AddItemUseCase,
     private val parseVoiceInputUseCase: ParseVoiceInputUseCase,
-    private val speechRecognizerHelper: SpeechRecognizerHelper
+    private val speechRecognizerHelper: SpeechRecognizerHelper,
+    private val voiceSettingsManager: VoiceSettingsManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddItemUiState())
@@ -64,7 +66,9 @@ class AddItemViewModel @Inject constructor(
                 spokenText = "",
                 errorMessage = null
             )
-            speechRecognizerHelper.startListening().collect { state ->
+            val autoStop = voiceSettingsManager.getAutoStopMicEnabled()
+            val timeout = voiceSettingsManager.getAutoStopTimeoutSeconds()
+            speechRecognizerHelper.startListening(autoStopEnabled = autoStop, timeoutSeconds = timeout).collect { state ->
                 when (state) {
                     is SpeechState.Listening -> {
                         _uiState.value = _uiState.value.copy(isRecording = true, errorMessage = null)
