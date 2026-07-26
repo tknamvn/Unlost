@@ -61,4 +61,25 @@ class VietnameseTextParserTest {
         assertEquals("Chiếc đồng hồ thông minh", result.title)
         assertEquals("", result.location)
     }
+
+    @Test
+    fun parse_emptyString_returnsEmptyTitleAndLocation() {
+        val result = parser.parse("")
+        assertEquals("", result.title)
+        assertEquals("", result.location)
+    }
+
+    @Test
+    fun parse_whitespaceOnly_returnsEmptyTitleAndLocation() {
+        val result = parser.parse("    ")
+        assertEquals("", result.title)
+        assertEquals("", result.location)
+    }
+
+    @Test
+    fun parse_multiplePrefixes_stripsPrefixes() {
+        val result = parser.parse("Tôi vừa để ví tiền ở trong tủ")
+        assertEquals("Ví tiền", result.title)
+        assertEquals("Trong tủ", result.location)
+    }
 }

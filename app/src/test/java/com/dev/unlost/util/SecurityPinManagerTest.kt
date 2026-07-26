@@ -2,6 +2,7 @@ package com.dev.unlost.util
 
 import android.content.Context
 import android.content.SharedPreferences
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -91,5 +92,31 @@ class SecurityPinManagerTest {
         assertTrue(pinManager.hasPinSet())
         assertTrue(pinManager.verifyPin("1234"))
         assertFalse(pinManager.verifyPin("9999"))
+    }
+
+    @Test
+    fun recordFailedAttempt_incrementsAttemptsAndTriggersLockout() {
+        val pinManager = SecurityPinManager(mockContext)
+        pinManager.savePin("1234")
+
+        val status1 = pinManager.recordFailedAttempt()
+        assertTrue(status1 is SecurityPinManager.LockoutStatus.Active)
+        assertEquals(3, (status1 as SecurityPinManager.LockoutStatus.Active).remainingAttempts)
+
+        pinManager.recordFailedAttempt()
+        pinManager.recordFailedAttempt()
+        val status4 = pinManager.recordFailedAttempt()
+        assertTrue(status4 is SecurityPinManager.LockoutStatus.TemporarilyLocked)
+    }
+
+    @Test
+    fun clearPin_resetsAllPinState() {
+        val pinManager = SecurityPinManager(mockContext)
+        pinManager.savePin("1234")
+        assertTrue(pinManager.hasPinSet())
+
+        pinManager.clearPin()
+        assertFalse(pinManager.hasPinSet())
+        assertFalse(pinManager.isPinLockEnabled())
     }
 }
