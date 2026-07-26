@@ -153,17 +153,8 @@ private fun SettingsTopBar() {
             .fillMaxWidth()
             .statusBarsPadding()
             .padding(start = 24.dp, end = 24.dp, top = 8.dp, bottom = 6.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text("Cài đặt", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
-        Box(
-            modifier = Modifier
-                .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFFD1FAE5))
-                .padding(horizontal = 10.dp, vertical = 4.dp)
-        ) {
-            Text("✓ Offline", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0E5E53))
-        }
     }
 }
