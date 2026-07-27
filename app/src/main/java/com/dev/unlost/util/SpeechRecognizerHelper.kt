@@ -124,17 +124,9 @@ class SpeechRecognizerHelper @Inject constructor(
         private fun restartSubSession() {
             if (!isSessionActive) return
             scope.launch(Dispatchers.Main) {
-                delay(20L)
+                delay(30L)
                 if (!isSessionActive) return@launch
-                try {
-                    if (currentRecognizer != null) {
-                        currentRecognizer?.startListening(createIntent())
-                    } else {
-                        startSubSession()
-                    }
-                } catch (_: Exception) {
-                    startSubSession()
-                }
+                startSubSession()
             }
         }
 
@@ -246,18 +238,7 @@ class SpeechRecognizerHelper @Inject constructor(
             override fun onEvent(eventType: Int, params: Bundle?) {}
         }
 
-        private fun createIntent(): Intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "vi-VN")
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "vi-VN")
-            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
-            putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
-            putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
-            putExtra("android.speech.extra.DICTATION_MODE", true)
-            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 1L)
-            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 100L)
-            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 100L)
-        }
+        private fun createIntent(): Intent = SpeechIntentFactory.createRecognizeIntent(context)
 
         private fun appendRecognizedText(newText: String) {
             val trimmed = newText.trim()
