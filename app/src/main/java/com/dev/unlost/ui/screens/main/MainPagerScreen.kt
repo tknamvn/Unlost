@@ -8,11 +8,14 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import com.dev.unlost.ui.components.BottomTab
 import com.dev.unlost.ui.components.UnlostBottomNavigationBar
@@ -29,15 +32,23 @@ fun MainPagerScreen(
 ) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { 3 })
+    var selectedTab by rememberSaveable { mutableStateOf(BottomTab.HOME) }
     var directTargetPage by remember { mutableStateOf<Int?>(null) }
 
-    val currentTab = when (pagerState.currentPage) {
-        0 -> BottomTab.HOME
-        1 -> BottomTab.SEARCH
-        else -> BottomTab.SETTINGS
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.currentPage }.collect { page ->
+            if (directTargetPage == null) {
+                selectedTab = when (page) {
+                    0 -> BottomTab.HOME
+                    1 -> BottomTab.SEARCH
+                    else -> BottomTab.SETTINGS
+                }
+            }
+        }
     }
 
     val onTabSelected: (BottomTab) -> Unit = { tab ->
+        selectedTab = tab
         val target = when (tab) {
             BottomTab.HOME -> 0
             BottomTab.SEARCH -> 1
@@ -67,7 +78,7 @@ fun MainPagerScreen(
     Scaffold(
         bottomBar = {
             UnlostBottomNavigationBar(
-                currentTab = currentTab,
+                currentTab = selectedTab,
                 onTabSelected = onTabSelected
             )
         }

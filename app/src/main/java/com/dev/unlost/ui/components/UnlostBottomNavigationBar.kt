@@ -2,8 +2,8 @@ package com.dev.unlost.ui.components
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,8 +26,10 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -98,24 +100,23 @@ private fun BottomNavItem(
     label: String,
     modifier: Modifier = Modifier
 ) {
-    val backgroundColor by animateColorAsState(
-        targetValue = if (selected) Color(0xFFD1FAE5) else Color.Transparent,
-        animationSpec = tween(durationMillis = 200),
-        label = "tabBackgroundColor"
-    )
     val contentColor by animateColorAsState(
         targetValue = if (selected) Color(0xFF0E5E53) else Color(0xFF64748B),
-        animationSpec = tween(durationMillis = 200),
+        animationSpec = tween(durationMillis = 150),
         label = "tabContentColor"
     )
+    val interactionSource = remember { MutableInteractionSource() }
 
     Box(
         modifier = modifier
             .fillMaxHeight()
             .padding(horizontal = 4.dp, vertical = 2.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(backgroundColor)
-            .clickable(onClick = onClick),
+            .clickable(
+                interactionSource = interactionSource,
+                indication = ripple(bounded = true, color = Color(0xFF0E5E53).copy(alpha = 0.15f)),
+                onClick = onClick
+            ),
         contentAlignment = Alignment.Center
     ) {
         Column(
