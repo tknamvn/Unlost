@@ -54,14 +54,12 @@ private class SpeechSession(
     private var lastSilenceStartTime = System.currentTimeMillis()
     private val accumulatedText = StringBuilder()
     private var latestPartialText: String = ""
-    private var maxPartialLength: Int = 0
     private var silenceJob: Job? = null
     private var isSessionActive = true
     private var lastEmittedSec: Int? = null
 
     fun start() {
         lastSilenceStartTime = System.currentTimeMillis()
-        maxPartialLength = 0
         startSilenceTimer()
         startSubSession()
     }
@@ -127,7 +125,7 @@ private class SpeechSession(
     private fun restartSubSession() {
         if (!isSessionActive) return
         scope.launch(Dispatchers.Main) {
-            delay(50L)
+            delay(20L)
             if (!isSessionActive) return@launch
             try {
                 if (currentRecognizer != null) {
@@ -173,7 +171,7 @@ private class SpeechSession(
 
     private fun isValidSpeechText(text: String): Boolean {
         val trimmed = text.trim()
-        return trimmed.length >= 2 && trimmed.any { it.isLetterOrDigit() }
+        return trimmed.isNotEmpty() && trimmed.any { it.isLetterOrDigit() }
     }
 
     fun updateSpeechActivity() {
@@ -201,7 +199,7 @@ private class SpeechSession(
             if (isValidSpeechText(text)) {
                 appendRecognizedText(text)
                 latestPartialText = ""
-                maxPartialLength = 0
+                emitCurrentState(lastEmittedSec)
             }
         }
         checkSilenceAndContinue()
@@ -213,13 +211,12 @@ private class SpeechSession(
         if (!matches.isNullOrEmpty()) {
             val text = matches[0].trim()
             if (isValidSpeechText(text)) {
-                if (text.length > maxPartialLength) {
-                    maxPartialLength = text.length
-                    latestPartialText = text
-                    updateSpeechActivity()
-                } else {
-                    latestPartialText = text
-                }
+                latestPartialText = text
+                lastSilenceStartTime = System.currentTimeMillis()
+                val totalTimeoutSec = (timeoutMs / 1000L).toInt()
+                lastEmittedSec = totalTimeoutSec
+                val currentText = getBestText()
+                scope.trySend(SpeechState.PartialResult(currentText, totalTimeoutSec))
             }
         }
     }
@@ -255,7 +252,12 @@ private class SpeechSession(
         putExtra(RecognizerIntent.EXTRA_LANGUAGE, "vi-VN")
         putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "vi-VN")
         putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+        putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
         putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+        putExtra("android.speech.extra.DICTATION_MODE", true)
+        putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 1L)
+        putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 100L)
+        putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 100L)
     }
 
     private fun appendRecognizedText(newText: String) {

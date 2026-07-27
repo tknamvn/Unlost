@@ -104,8 +104,11 @@ class AddItemViewModel @Inject constructor(
             }
             is SpeechState.PartialResult -> {
                 val sec = state.remainingSeconds ?: _uiState.value.remainingSeconds
+                val parsed = parseVoiceInputUseCase(state.result)
                 _uiState.value = _uiState.value.copy(
                     spokenText = state.result,
+                    title = if (parsed.title.isNotBlank()) parsed.title else _uiState.value.title,
+                    location = if (parsed.location.isNotBlank()) parsed.location else _uiState.value.location,
                     isRecording = true,
                     remainingSeconds = sec
                 )
@@ -114,8 +117,8 @@ class AddItemViewModel @Inject constructor(
                 val parsed = parseVoiceInputUseCase(state.result)
                 _uiState.value = _uiState.value.copy(
                     spokenText = state.result,
-                    title = parsed.title,
-                    location = parsed.location,
+                    title = if (parsed.title.isNotBlank()) parsed.title else _uiState.value.title.ifBlank { state.result },
+                    location = if (parsed.location.isNotBlank()) parsed.location else _uiState.value.location,
                     isRecording = false,
                     remainingSeconds = null
                 )
