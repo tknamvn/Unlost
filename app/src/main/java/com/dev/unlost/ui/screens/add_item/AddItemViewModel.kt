@@ -9,6 +9,7 @@ import com.dev.unlost.util.SpeechRecognizerHelper
 import com.dev.unlost.util.SpeechState
 import com.dev.unlost.util.VoiceSettingsManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -24,6 +25,7 @@ data class AddItemUiState(
     val description: String = "",
     val spokenText: String = "",
     val isRecording: Boolean = false,
+    val remainingSeconds: Int? = null,
     val errorMessage: String? = null
 )
 
@@ -46,6 +48,8 @@ class AddItemViewModel @Inject constructor(
     private val _uiEvent = MutableSharedFlow<AddItemUiEvent>()
     val uiEvent: SharedFlow<AddItemUiEvent> = _uiEvent.asSharedFlow()
 
+    private var recordingJob: Job? = null
+
     fun onTitleChange(newTitle: String) {
         _uiState.value = _uiState.value.copy(title = newTitle, errorMessage = null)
     }
@@ -56,50 +60,88 @@ class AddItemViewModel @Inject constructor(
 
     fun toggleVoiceRecording() {
         if (_uiState.value.isRecording) {
-            _uiState.value = _uiState.value.copy(isRecording = false)
+            stopVoiceRecording()
             return
         }
 
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(
-                isRecording = true,
-                spokenText = "",
-                errorMessage = null
-            )
-            val autoStop = voiceSettingsManager.getAutoStopMicEnabled()
-            val timeout = voiceSettingsManager.getAutoStopTimeoutSeconds()
-            speechRecognizerHelper.startListening(autoStopEnabled = autoStop, timeoutSeconds = timeout).collect { state ->
-                when (state) {
-                    is SpeechState.Listening -> {
-                        _uiState.value = _uiState.value.copy(isRecording = true, errorMessage = null)
-                    }
-                    is SpeechState.PartialResult -> {
-                        _uiState.value = _uiState.value.copy(
-                            spokenText = state.result,
-                            isRecording = true
-                        )
-                    }
-                    is SpeechState.Success -> {
-                        val parsed = parseVoiceInputUseCase(state.result)
-                        _uiState.value = _uiState.value.copy(
-                            spokenText = state.result,
-                            title = parsed.title,
-                            location = parsed.location,
-                            isRecording = false
-                        )
-                    }
-                    is SpeechState.Error -> {
-                        _uiState.value = _uiState.value.copy(
-                            isRecording = false,
-                            errorMessage = state.message
-                        )
-                    }
-                    is SpeechState.Idle -> {
-                        _uiState.value = _uiState.value.copy(isRecording = false)
-                    }
-                }
+        stopVoiceRecording()
+
+        val autoStop = voiceSettingsManager.getAutoStopMicEnabled()
+        val timeout = voiceSettingsManager.getAutoStopTimeoutSeconds()
+
+        _uiState.value = _uiState.value.copy(
+            isRecording = true,
+            spokenText = "",
+            remainingSeconds = if (autoStop) timeout else null,
+            errorMessage = null
+        )
+
+        recordingJob = viewModelScope.launch {
+            speechRecognizerHelper.startListening(
+                autoStopEnabled = autoStop,
+                timeoutSeconds = timeout
+            ).collect { state ->
+                handleSpeechState(state)
             }
         }
+    }
+
+    private fun stopVoiceRecording() {
+        recordingJob?.cancel()
+        recordingJob = null
+        _uiState.value = _uiState.value.copy(isRecording = false, remainingSeconds = null)
+    }
+
+    private fun handleSpeechState(state: SpeechState) {
+        when (state) {
+            is SpeechState.Listening -> {
+                val sec = state.remainingSeconds ?: _uiState.value.remainingSeconds
+                _uiState.value = _uiState.value.copy(
+                    isRecording = true,
+                    remainingSeconds = sec,
+                    errorMessage = null
+                )
+            }
+            is SpeechState.PartialResult -> {
+                val sec = state.remainingSeconds ?: _uiState.value.remainingSeconds
+                val parsed = parseVoiceInputUseCase(state.result)
+                _uiState.value = _uiState.value.copy(
+                    spokenText = state.result,
+                    title = if (parsed.title.isNotBlank()) parsed.title else _uiState.value.title,
+                    location = if (parsed.location.isNotBlank()) parsed.location else _uiState.value.location,
+                    isRecording = true,
+                    remainingSeconds = sec
+                )
+            }
+            is SpeechState.Success -> {
+                val parsed = parseVoiceInputUseCase(state.result)
+                _uiState.value = _uiState.value.copy(
+                    spokenText = state.result,
+                    title = if (parsed.title.isNotBlank()) parsed.title else _uiState.value.title.ifBlank { state.result },
+                    location = if (parsed.location.isNotBlank()) parsed.location else _uiState.value.location,
+                    isRecording = false,
+                    remainingSeconds = null
+                )
+            }
+            is SpeechState.Error -> {
+                _uiState.value = _uiState.value.copy(
+                    isRecording = false,
+                    remainingSeconds = null,
+                    errorMessage = state.message
+                )
+            }
+            is SpeechState.Idle -> {
+                _uiState.value = _uiState.value.copy(
+                    isRecording = false,
+                    remainingSeconds = null
+                )
+            }
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        stopVoiceRecording()
     }
 
     fun saveItem() {

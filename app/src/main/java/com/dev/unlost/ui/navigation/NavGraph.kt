@@ -35,7 +35,8 @@ import com.dev.unlost.util.SecurityPinManager
 @Composable
 fun NavGraph(
     navController: NavHostController = rememberNavController(),
-    startDestination: String = Screen.Home.route
+    startDestination: String = Screen.Home.route,
+    onPinUnlocked: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val pinManager = remember { SecurityPinManager(context) }
@@ -53,57 +54,37 @@ fun NavGraph(
                 val initialIdx = getRouteIndex(initialState.destination.route)
                 val targetIdx = getRouteIndex(targetState.destination.route)
                 if (targetIdx < initialIdx) {
-                    slideInHorizontally(
-                        initialOffsetX = { fullWidth -> -fullWidth },
-                        animationSpec = tween(durationMillis = 300)
-                    ) + fadeIn(animationSpec = tween(durationMillis = 300))
+                    slideInHorizontally(initialOffsetX = { -it }, animationSpec = tween(300)) + fadeIn(tween(300))
                 } else {
-                    slideInHorizontally(
-                        initialOffsetX = { fullWidth -> fullWidth },
-                        animationSpec = tween(durationMillis = 300)
-                    ) + fadeIn(animationSpec = tween(durationMillis = 300))
+                    slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(300)) + fadeIn(tween(300))
                 }
             },
             exitTransition = {
                 val initialIdx = getRouteIndex(initialState.destination.route)
                 val targetIdx = getRouteIndex(targetState.destination.route)
                 if (targetIdx < initialIdx) {
-                    slideOutHorizontally(
-                        targetOffsetX = { fullWidth -> fullWidth / 3 },
-                        animationSpec = tween(durationMillis = 300)
-                    ) + fadeOut(animationSpec = tween(durationMillis = 300))
+                    slideOutHorizontally(targetOffsetX = { it / 3 }, animationSpec = tween(300)) + fadeOut(tween(300))
                 } else {
-                    slideOutHorizontally(
-                        targetOffsetX = { fullWidth -> -fullWidth / 3 },
-                        animationSpec = tween(durationMillis = 300)
-                    ) + fadeOut(animationSpec = tween(durationMillis = 300))
+                    slideOutHorizontally(targetOffsetX = { -it / 3 }, animationSpec = tween(300)) + fadeOut(tween(300))
                 }
             },
             popEnterTransition = { EnterTransition.None },
             popExitTransition = { ExitTransition.None }
         ) {
             composable(Screen.Onboarding.route) {
-                OnboardingScreen(
-                    onStartClick = {
-                        navController.navigate(Screen.SecurityChoice.route)
-                    }
-                )
+                OnboardingScreen(onStartClick = { navController.navigate(Screen.SecurityChoice.route) })
             }
 
             composable(Screen.SecurityChoice.route) {
                 SecurityChoiceScreen(
                     onBackClick = { navController.popBackStack() },
-                    onSelectSetPin = {
-                        navController.navigate(Screen.SecurityPin.route + "?fromOnboarding=true")
-                    },
+                    onSelectSetPin = { navController.navigate(Screen.SecurityPin.route + "?fromOnboarding=true") },
                     onSelectSkip = {
                         draftPinEnabled = false
                         draftPin = null
                         navController.navigate(Screen.SecurityCustom.route)
                     },
-                    targetPageContent = {
-                        OnboardingScreen(onStartClick = {})
-                    }
+                    targetPageContent = { OnboardingScreen(onStartClick = {}) }
                 )
             }
 
@@ -111,9 +92,7 @@ fun NavGraph(
                 SecurityCustomScreen(
                     isPinEnabled = draftPinEnabled,
                     onBackClick = { navController.popBackStack() },
-                    onRequestSetPin = {
-                        navController.navigate(Screen.SecurityPin.route + "?fromOnboarding=true")
-                    },
+                    onRequestSetPin = { navController.navigate(Screen.SecurityPin.route + "?fromOnboarding=true") },
                     onDisablePin = {
                         draftPinEnabled = false
                         draftPin = null
@@ -127,31 +106,24 @@ fun NavGraph(
                         }
                         onboardingManager.completeOnboarding()
                         navController.navigate(Screen.Home.route) {
-                            popUpTo(Screen.Onboarding.route) {
-                                inclusive = true
-                            }
+                            popUpTo(Screen.Onboarding.route) { inclusive = true }
                         }
                     },
-                    targetPageContent = {
-                        SecurityChoiceScreen(
-                            onBackClick = {},
-                            onSelectSetPin = {},
-                            onSelectSkip = {}
-                        )
-                    }
+                    targetPageContent = { SecurityChoiceScreen(onBackClick = {}, onSelectSetPin = {}, onSelectSkip = {}) }
                 )
             }
 
             composable(
-                route = Screen.SecurityPin.route + "?fromOnboarding={fromOnboarding}",
+                route = Screen.SecurityPin.route + "?fromOnboarding={fromOnboarding}&fromSettings={fromSettings}",
                 arguments = listOf(
-                    navArgument("fromOnboarding") {
-                        type = NavType.BoolType
-                        defaultValue = false
-                    }
+                    navArgument("fromOnboarding") { type = NavType.BoolType; defaultValue = false },
+                    navArgument("fromSettings") { type = NavType.BoolType; defaultValue = false }
                 )
             ) { backStackEntry ->
                 val fromOnboarding = backStackEntry.arguments?.getBoolean("fromOnboarding") ?: false
+                val fromSettings = backStackEntry.arguments?.getBoolean("fromSettings") ?: false
+                val isSetupMode = fromOnboarding || fromSettings
+
                 PinScreen(
                     onNavigateToHome = { createdPin ->
                         if (fromOnboarding) {
@@ -160,23 +132,22 @@ fun NavGraph(
                                 draftPinEnabled = true
                             }
                             navController.navigate(Screen.SecurityCustom.route) {
-                                popUpTo(Screen.SecurityChoice.route) {
-                                    inclusive = false
-                                }
+                                popUpTo(Screen.SecurityChoice.route) { inclusive = false }
                             }
-                        } else {
+                        } else if (fromSettings) {
                             if (!createdPin.isNullOrEmpty()) {
                                 pinManager.savePin(createdPin)
                                 pinManager.setPinLockEnabled(true)
                             }
+                            navController.popBackStack()
+                        } else {
+                            onPinUnlocked()
                             navController.navigate(Screen.Home.route) {
-                                popUpTo(Screen.SecurityPin.route) {
-                                    inclusive = true
-                                }
+                                popUpTo(0) { inclusive = true }
                             }
                         }
                     },
-                    onBackClick = { navController.popBackStack() },
+                    onBackClick = if (isSetupMode) { { navController.popBackStack() } } else null,
                     targetPageContent = if (fromOnboarding) {
                         { SecurityChoiceScreen(onBackClick = {}, onSelectSetPin = {}, onSelectSkip = {}) }
                     } else null
@@ -186,27 +157,25 @@ fun NavGraph(
             composable(Screen.Home.route) {
                 MainPagerScreen(
                     onNavigateToAddItem = { navController.navigate(Screen.AddItem.route) },
-                    onNavigateToSetPin = { navController.navigate(Screen.SecurityPin.route) }
+                    onNavigateToSetPin = { navController.navigate(Screen.SecurityPin.route + "?fromSettings=true") }
                 )
             }
             composable(Screen.Search.route) {
                 MainPagerScreen(
                     onNavigateToAddItem = { navController.navigate(Screen.AddItem.route) },
-                    onNavigateToSetPin = { navController.navigate(Screen.SecurityPin.route) }
+                    onNavigateToSetPin = { navController.navigate(Screen.SecurityPin.route + "?fromSettings=true") }
                 )
             }
             composable(Screen.Settings.route) {
                 MainPagerScreen(
                     onNavigateToAddItem = { navController.navigate(Screen.AddItem.route) },
-                    onNavigateToSetPin = { navController.navigate(Screen.SecurityPin.route) }
+                    onNavigateToSetPin = { navController.navigate(Screen.SecurityPin.route + "?fromSettings=true") }
                 )
             }
             composable(Screen.AddItem.route) {
                 AddItemScreen(
                     onNavigateBack = { navController.popBackStack() },
-                    targetPageContent = {
-                        MainPagerScreen(onNavigateToAddItem = {})
-                    }
+                    targetPageContent = { MainPagerScreen(onNavigateToAddItem = {}) }
                 )
             }
         }
