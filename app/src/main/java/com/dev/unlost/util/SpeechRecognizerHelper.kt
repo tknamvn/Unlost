@@ -18,14 +18,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
-sealed class SpeechState {
-    object Idle : SpeechState()
-    data class Listening(val remainingSeconds: Int? = null) : SpeechState()
-    data class PartialResult(val result: String, val remainingSeconds: Int? = null) : SpeechState()
-    data class Success(val result: String) : SpeechState()
-    data class Error(val message: String) : SpeechState()
-}
-
 @Singleton
 class SpeechRecognizerHelper @Inject constructor(
     @param:ApplicationContext private val context: Context
@@ -59,18 +51,18 @@ private class SpeechSession(
     private val scope: ProducerScope<SpeechState>
 ) {
     private var currentRecognizer: SpeechRecognizer? = null
-    private var lastActivityTime = System.currentTimeMillis()
+    private var lastSilenceStartTime = System.currentTimeMillis()
     private val accumulatedText = StringBuilder()
     private var latestPartialText: String = ""
+    private var maxPartialLength: Int = 0
     private var silenceJob: Job? = null
     private var isSessionActive = true
-    private var isUserSpeaking = false
-    private var hasSpeechStarted = false
-    private var hasInitialReadyHappened = false
     private var lastEmittedSec: Int? = null
 
     fun start() {
-        resetSilenceCheck()
+        lastSilenceStartTime = System.currentTimeMillis()
+        maxPartialLength = 0
+        startSilenceTimer()
         startSubSession()
     }
 
@@ -78,6 +70,45 @@ private class SpeechSession(
         isSessionActive = false
         silenceJob?.cancel()
         destroyCurrentRecognizer()
+    }
+
+    private fun startSilenceTimer() {
+        silenceJob?.cancel()
+        if (!autoStopEnabled) {
+            scope.trySend(SpeechState.Listening(null))
+            return
+        }
+
+        silenceJob = scope.launch(Dispatchers.Main) {
+            while (isSessionActive) {
+                val now = System.currentTimeMillis()
+                val elapsed = now - lastSilenceStartTime
+                val remainingMs = timeoutMs - elapsed
+
+                if (remainingMs <= 0) {
+                    finalizeSuccess()
+                    break
+                }
+
+                val totalTimeoutSec = (timeoutMs / 1000L).toInt()
+                val remainingSec = ((remainingMs + 999L) / 1000L).toInt().coerceIn(1, totalTimeoutSec)
+
+                if (remainingSec != lastEmittedSec) {
+                    lastEmittedSec = remainingSec
+                    emitCurrentState(remainingSec)
+                }
+                delay(50L)
+            }
+        }
+    }
+
+    private fun emitCurrentState(remainingSec: Int?) {
+        val currentText = getBestText()
+        if (currentText.isNotEmpty()) {
+            scope.trySend(SpeechState.PartialResult(currentText, remainingSec))
+        } else {
+            scope.trySend(SpeechState.Listening(remainingSec))
+        }
     }
 
     private fun startSubSession() {
@@ -89,19 +120,20 @@ private class SpeechSession(
                 currentRecognizer = recognizer
                 recognizer.setRecognitionListener(createListener())
                 recognizer.startListening(createIntent())
-            } catch (_: Exception) {
-            }
+            } catch (_: Exception) {}
         }
     }
 
-    private fun restartListeningSubSession() {
+    private fun restartSubSession() {
         if (!isSessionActive) return
         scope.launch(Dispatchers.Main) {
+            delay(50L)
+            if (!isSessionActive) return@launch
             try {
-                if (currentRecognizer == null) {
-                    startSubSession()
-                } else {
+                if (currentRecognizer != null) {
                     currentRecognizer?.startListening(createIntent())
+                } else {
+                    startSubSession()
                 }
             } catch (_: Exception) {
                 startSubSession()
@@ -139,68 +171,38 @@ private class SpeechSession(
         }
     }
 
-    fun markSpeechActive() {
-        hasSpeechStarted = true
-        isUserSpeaking = true
-        lastActivityTime = System.currentTimeMillis()
+    private fun isValidSpeechText(text: String): Boolean {
+        val trimmed = text.trim()
+        return trimmed.length >= 2 && trimmed.any { it.isLetterOrDigit() }
     }
 
-    fun markSpeechPaused() {
-        isUserSpeaking = false
-        lastActivityTime = System.currentTimeMillis()
-    }
-
-    fun resetSilenceCheck() {
-        silenceJob?.cancel()
-        if (autoStopEnabled) {
-            silenceJob = scope.launch(Dispatchers.Main) {
-                while (isSessionActive) {
-                    val currentTimeout = if (hasSpeechStarted || getBestText().isNotEmpty()) timeoutMs else INITIAL_WAIT_TIMEOUT_MS
-                    val elapsed = System.currentTimeMillis() - lastActivityTime
-                    val remainingMs = currentTimeout - elapsed
-
-                    if (remainingMs <= 0) {
-                        finalizeSuccess()
-                        break
-                    }
-
-                    val remainingSec = if (hasSpeechStarted || getBestText().isNotEmpty()) {
-                        ((remainingMs + 999L) / 1000L).toInt()
-                    } else {
-                        ((remainingMs + 999L) / 1000L).coerceAtMost(timeoutMs / 1000L).toInt()
-                    }
-                    if (remainingSec != lastEmittedSec) {
-                        lastEmittedSec = remainingSec
-                        scope.trySend(SpeechState.Listening(remainingSec))
-                    }
-                    delay(50L)
-                }
-            }
-        } else {
-            scope.trySend(SpeechState.Listening(null))
-        }
+    fun updateSpeechActivity() {
+        lastSilenceStartTime = System.currentTimeMillis()
+        val totalTimeoutSec = (timeoutMs / 1000L).toInt()
+        lastEmittedSec = totalTimeoutSec
+        emitCurrentState(totalTimeoutSec)
     }
 
     private fun checkSilenceAndContinue() {
         if (!isSessionActive) return
-        val currentTimeout = if (hasSpeechStarted || getBestText().isNotEmpty()) timeoutMs else INITIAL_WAIT_TIMEOUT_MS
-        val elapsed = System.currentTimeMillis() - lastActivityTime
-        if (autoStopEnabled && elapsed >= currentTimeout) {
+        val elapsed = System.currentTimeMillis() - lastSilenceStartTime
+        if (autoStopEnabled && elapsed >= timeoutMs) {
             finalizeSuccess()
         } else {
-            restartListeningSubSession()
+            restartSubSession()
         }
     }
 
     fun handleResults(results: Bundle?) {
         if (!isSessionActive) return
-        markSpeechPaused()
         val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
         if (!matches.isNullOrEmpty()) {
-            appendRecognizedText(matches[0])
-            latestPartialText = ""
-            val sec = lastEmittedSec ?: (timeoutMs / 1000L).toInt()
-            scope.trySend(SpeechState.PartialResult(getBestText(), sec))
+            val text = matches[0].trim()
+            if (isValidSpeechText(text)) {
+                appendRecognizedText(text)
+                latestPartialText = ""
+                maxPartialLength = 0
+            }
         }
         checkSilenceAndContinue()
     }
@@ -209,41 +211,39 @@ private class SpeechSession(
         if (!isSessionActive) return
         val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
         if (!matches.isNullOrEmpty()) {
-            markSpeechActive()
-            latestPartialText = matches[0].trim()
-            val sec = lastEmittedSec ?: (timeoutMs / 1000L).toInt()
-            scope.trySend(SpeechState.PartialResult(getBestText(), sec))
+            val text = matches[0].trim()
+            if (isValidSpeechText(text)) {
+                if (text.length > maxPartialLength) {
+                    maxPartialLength = text.length
+                    latestPartialText = text
+                    updateSpeechActivity()
+                } else {
+                    latestPartialText = text
+                }
+            }
         }
     }
 
     fun handleError(error: Int) {
         if (!isSessionActive) return
-        markSpeechPaused()
-        if (error == SpeechRecognizer.ERROR_NO_MATCH || error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
-            checkSilenceAndContinue()
-        } else {
-            val currentTimeout = if (hasSpeechStarted || getBestText().isNotEmpty()) timeoutMs else INITIAL_WAIT_TIMEOUT_MS
-            val elapsed = System.currentTimeMillis() - lastActivityTime
-            if (getBestText().isNotEmpty() || elapsed >= currentTimeout) {
-                finalizeSuccess()
-            } else {
-                checkSilenceAndContinue()
+        if (error == SpeechRecognizer.ERROR_AUDIO || error == SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS) {
+            if (getBestText().isEmpty()) {
+                isSessionActive = false
+                silenceJob?.cancel()
+                destroyCurrentRecognizer()
+                scope.trySend(SpeechState.Error("Lỗi ghi âm ($error)"))
+                return
             }
         }
+        checkSilenceAndContinue()
     }
 
     private fun createListener(): RecognitionListener = object : RecognitionListener {
-        override fun onReadyForSpeech(params: Bundle?) {
-            if (!hasInitialReadyHappened) {
-                hasInitialReadyHappened = true
-                lastActivityTime = System.currentTimeMillis()
-            }
-            scope.trySend(SpeechState.Listening(lastEmittedSec ?: (timeoutMs / 1000L).toInt()))
-        }
-        override fun onBeginningOfSpeech() { markSpeechActive() }
+        override fun onReadyForSpeech(params: Bundle?) {}
+        override fun onBeginningOfSpeech() {}
         override fun onRmsChanged(rmsdB: Float) {}
         override fun onBufferReceived(buffer: ByteArray?) {}
-        override fun onEndOfSpeech() { markSpeechPaused() }
+        override fun onEndOfSpeech() {}
         override fun onError(error: Int) { handleError(error) }
         override fun onResults(results: Bundle?) { handleResults(results) }
         override fun onPartialResults(partialResults: Bundle?) { handlePartialResults(partialResults) }
@@ -265,17 +265,5 @@ private class SpeechSession(
             accumulatedText.append(" ")
         }
         accumulatedText.append(trimmed)
-    }
-
-    private fun mapErrorToMessage(error: Int): String = when (error) {
-        SpeechRecognizer.ERROR_AUDIO -> "Lỗi ghi âm"
-        SpeechRecognizer.ERROR_NO_MATCH -> "Không nghe thấy giọng nói"
-        SpeechRecognizer.ERROR_NETWORK -> "Lỗi kết nối mạng"
-        SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "Đã hết thời gian chờ giọng nói"
-        else -> "Lỗi nhận diện giọng nói ($error)"
-    }
-
-    companion object {
-        private const val INITIAL_WAIT_TIMEOUT_MS = 6000L
     }
 }
