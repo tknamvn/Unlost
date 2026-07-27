@@ -42,230 +42,230 @@ class SpeechRecognizerHelper @Inject constructor(
             session.cleanup()
         }
     }
-}
 
-private class SpeechSession(
-    private val context: Context,
-    private val timeoutMs: Long,
-    private val autoStopEnabled: Boolean,
-    private val scope: ProducerScope<SpeechState>
-) {
-    private var currentRecognizer: SpeechRecognizer? = null
-    private var lastSilenceStartTime = System.currentTimeMillis()
-    private val accumulatedText = StringBuilder()
-    private var latestPartialText: String = ""
-    private var silenceJob: Job? = null
-    private var isSessionActive = true
-    private var lastEmittedSec: Int? = null
+    private class SpeechSession(
+        private val context: Context,
+        private val timeoutMs: Long,
+        private val autoStopEnabled: Boolean,
+        private val scope: ProducerScope<SpeechState>
+    ) {
+        private var currentRecognizer: SpeechRecognizer? = null
+        private var lastSilenceStartTime = System.currentTimeMillis()
+        private val accumulatedText = StringBuilder()
+        private var latestPartialText: String = ""
+        private var silenceJob: Job? = null
+        private var isSessionActive = true
+        private var lastEmittedSec: Int? = null
 
-    fun start() {
-        lastSilenceStartTime = System.currentTimeMillis()
-        startSilenceTimer()
-        startSubSession()
-    }
-
-    fun cleanup() {
-        isSessionActive = false
-        silenceJob?.cancel()
-        destroyCurrentRecognizer()
-    }
-
-    private fun startSilenceTimer() {
-        silenceJob?.cancel()
-        if (!autoStopEnabled) {
-            scope.trySend(SpeechState.Listening(null))
-            return
+        fun start() {
+            lastSilenceStartTime = System.currentTimeMillis()
+            startSilenceTimer()
+            startSubSession()
         }
 
-        silenceJob = scope.launch(Dispatchers.Main) {
-            while (isSessionActive) {
-                val now = System.currentTimeMillis()
-                val elapsed = now - lastSilenceStartTime
-                val remainingMs = timeoutMs - elapsed
-
-                if (remainingMs <= 0) {
-                    finalizeSuccess()
-                    break
-                }
-
-                val totalTimeoutSec = (timeoutMs / 1000L).toInt()
-                val remainingSec = ((remainingMs + 999L) / 1000L).toInt().coerceIn(1, totalTimeoutSec)
-
-                if (remainingSec != lastEmittedSec) {
-                    lastEmittedSec = remainingSec
-                    emitCurrentState(remainingSec)
-                }
-                delay(50L)
-            }
+        fun cleanup() {
+            isSessionActive = false
+            silenceJob?.cancel()
+            destroyCurrentRecognizer()
         }
-    }
 
-    private fun emitCurrentState(remainingSec: Int?) {
-        val currentText = getBestText()
-        if (currentText.isNotEmpty()) {
-            scope.trySend(SpeechState.PartialResult(currentText, remainingSec))
-        } else {
-            scope.trySend(SpeechState.Listening(remainingSec))
-        }
-    }
-
-    private fun startSubSession() {
-        if (!isSessionActive) return
-        scope.launch(Dispatchers.Main) {
-            try {
-                destroyCurrentRecognizer()
-                val recognizer = SpeechRecognizer.createSpeechRecognizer(context)
-                currentRecognizer = recognizer
-                recognizer.setRecognitionListener(createListener())
-                recognizer.startListening(createIntent())
-            } catch (_: Exception) {}
-        }
-    }
-
-    private fun restartSubSession() {
-        if (!isSessionActive) return
-        scope.launch(Dispatchers.Main) {
-            delay(20L)
-            if (!isSessionActive) return@launch
-            try {
-                if (currentRecognizer != null) {
-                    currentRecognizer?.startListening(createIntent())
-                } else {
-                    startSubSession()
-                }
-            } catch (_: Exception) {
-                startSubSession()
-            }
-        }
-    }
-
-    private fun destroyCurrentRecognizer() {
-        try {
-            currentRecognizer?.destroy()
-        } catch (_: Exception) {}
-        currentRecognizer = null
-    }
-
-    private fun getBestText(): String {
-        if (latestPartialText.isNotBlank()) {
-            val temp = StringBuilder(accumulatedText)
-            if (temp.isNotEmpty() && !temp.endsWith(" ")) temp.append(" ")
-            temp.append(latestPartialText.trim())
-            return temp.toString().trim()
-        }
-        return accumulatedText.toString().trim()
-    }
-
-    fun finalizeSuccess() {
-        if (!isSessionActive) return
-        isSessionActive = false
-        silenceJob?.cancel()
-        destroyCurrentRecognizer()
-        val result = getBestText()
-        if (result.isNotEmpty()) {
-            scope.trySend(SpeechState.Success(result))
-        } else {
-            scope.trySend(SpeechState.Error("Không nghe thấy giọng nói"))
-        }
-    }
-
-    private fun isValidSpeechText(text: String): Boolean {
-        val trimmed = text.trim()
-        return trimmed.isNotEmpty() && trimmed.any { it.isLetterOrDigit() }
-    }
-
-    fun updateSpeechActivity() {
-        lastSilenceStartTime = System.currentTimeMillis()
-        val totalTimeoutSec = (timeoutMs / 1000L).toInt()
-        lastEmittedSec = totalTimeoutSec
-        emitCurrentState(totalTimeoutSec)
-    }
-
-    private fun checkSilenceAndContinue() {
-        if (!isSessionActive) return
-        val elapsed = System.currentTimeMillis() - lastSilenceStartTime
-        if (autoStopEnabled && elapsed >= timeoutMs) {
-            finalizeSuccess()
-        } else {
-            restartSubSession()
-        }
-    }
-
-    fun handleResults(results: Bundle?) {
-        if (!isSessionActive) return
-        val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-        if (!matches.isNullOrEmpty()) {
-            val text = matches[0].trim()
-            if (isValidSpeechText(text)) {
-                appendRecognizedText(text)
-                latestPartialText = ""
-                emitCurrentState(lastEmittedSec)
-            }
-        }
-        checkSilenceAndContinue()
-    }
-
-    fun handlePartialResults(partialResults: Bundle?) {
-        if (!isSessionActive) return
-        val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-        if (!matches.isNullOrEmpty()) {
-            val text = matches[0].trim()
-            if (isValidSpeechText(text)) {
-                latestPartialText = text
-                lastSilenceStartTime = System.currentTimeMillis()
-                val totalTimeoutSec = (timeoutMs / 1000L).toInt()
-                lastEmittedSec = totalTimeoutSec
-                val currentText = getBestText()
-                scope.trySend(SpeechState.PartialResult(currentText, totalTimeoutSec))
-            }
-        }
-    }
-
-    fun handleError(error: Int) {
-        if (!isSessionActive) return
-        if (error == SpeechRecognizer.ERROR_AUDIO || error == SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS) {
-            if (getBestText().isEmpty()) {
-                isSessionActive = false
-                silenceJob?.cancel()
-                destroyCurrentRecognizer()
-                scope.trySend(SpeechState.Error("Lỗi ghi âm ($error)"))
+        private fun startSilenceTimer() {
+            silenceJob?.cancel()
+            if (!autoStopEnabled) {
+                scope.trySend(SpeechState.Listening(null))
                 return
             }
+
+            silenceJob = scope.launch(Dispatchers.Main) {
+                while (isSessionActive) {
+                    val now = System.currentTimeMillis()
+                    val elapsed = now - lastSilenceStartTime
+                    val remainingMs = timeoutMs - elapsed
+
+                    if (remainingMs <= 0) {
+                        finalizeSuccess()
+                        break
+                    }
+
+                    val totalTimeoutSec = (timeoutMs / 1000L).toInt()
+                    val remainingSec = ((remainingMs + 999L) / 1000L).toInt().coerceIn(1, totalTimeoutSec)
+
+                    if (remainingSec != lastEmittedSec) {
+                        lastEmittedSec = remainingSec
+                        emitCurrentState(remainingSec)
+                    }
+                    delay(50L)
+                }
+            }
         }
-        checkSilenceAndContinue()
-    }
 
-    private fun createListener(): RecognitionListener = object : RecognitionListener {
-        override fun onReadyForSpeech(params: Bundle?) {}
-        override fun onBeginningOfSpeech() {}
-        override fun onRmsChanged(rmsdB: Float) {}
-        override fun onBufferReceived(buffer: ByteArray?) {}
-        override fun onEndOfSpeech() {}
-        override fun onError(error: Int) { handleError(error) }
-        override fun onResults(results: Bundle?) { handleResults(results) }
-        override fun onPartialResults(partialResults: Bundle?) { handlePartialResults(partialResults) }
-        override fun onEvent(eventType: Int, params: Bundle?) {}
-    }
-
-    private fun createIntent(): Intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-        putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-        putExtra(RecognizerIntent.EXTRA_LANGUAGE, "vi-VN")
-        putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "vi-VN")
-        putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
-        putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
-        putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
-        putExtra("android.speech.extra.DICTATION_MODE", true)
-        putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 1L)
-        putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 100L)
-        putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 100L)
-    }
-
-    private fun appendRecognizedText(newText: String) {
-        val trimmed = newText.trim()
-        if (trimmed.isEmpty()) return
-        if (accumulatedText.isNotEmpty() && !accumulatedText.endsWith(" ")) {
-            accumulatedText.append(" ")
+        private fun emitCurrentState(remainingSec: Int?) {
+            val currentText = getBestText()
+            if (currentText.isNotEmpty()) {
+                scope.trySend(SpeechState.PartialResult(currentText, remainingSec))
+            } else {
+                scope.trySend(SpeechState.Listening(remainingSec))
+            }
         }
-        accumulatedText.append(trimmed)
+
+        private fun startSubSession() {
+            if (!isSessionActive) return
+            scope.launch(Dispatchers.Main) {
+                try {
+                    destroyCurrentRecognizer()
+                    val recognizer = SpeechRecognizer.createSpeechRecognizer(context)
+                    currentRecognizer = recognizer
+                    recognizer.setRecognitionListener(createListener())
+                    recognizer.startListening(createIntent())
+                } catch (_: Exception) {}
+            }
+        }
+
+        private fun restartSubSession() {
+            if (!isSessionActive) return
+            scope.launch(Dispatchers.Main) {
+                delay(20L)
+                if (!isSessionActive) return@launch
+                try {
+                    if (currentRecognizer != null) {
+                        currentRecognizer?.startListening(createIntent())
+                    } else {
+                        startSubSession()
+                    }
+                } catch (_: Exception) {
+                    startSubSession()
+                }
+            }
+        }
+
+        private fun destroyCurrentRecognizer() {
+            try {
+                currentRecognizer?.destroy()
+            } catch (_: Exception) {}
+            currentRecognizer = null
+        }
+
+        private fun getBestText(): String {
+            if (latestPartialText.isNotBlank()) {
+                val temp = StringBuilder(accumulatedText)
+                if (temp.isNotEmpty() && !temp.endsWith(" ")) temp.append(" ")
+                temp.append(latestPartialText.trim())
+                return temp.toString().trim()
+            }
+            return accumulatedText.toString().trim()
+        }
+
+        fun finalizeSuccess() {
+            if (!isSessionActive) return
+            isSessionActive = false
+            silenceJob?.cancel()
+            destroyCurrentRecognizer()
+            val result = getBestText()
+            if (result.isNotEmpty()) {
+                scope.trySend(SpeechState.Success(result))
+            } else {
+                scope.trySend(SpeechState.Error("Không nghe thấy giọng nói"))
+            }
+        }
+
+        private fun isValidSpeechText(text: String): Boolean {
+            val trimmed = text.trim()
+            return trimmed.isNotEmpty() && trimmed.any { it.isLetterOrDigit() }
+        }
+
+        fun updateSpeechActivity() {
+            lastSilenceStartTime = System.currentTimeMillis()
+            val totalTimeoutSec = (timeoutMs / 1000L).toInt()
+            lastEmittedSec = totalTimeoutSec
+            emitCurrentState(totalTimeoutSec)
+        }
+
+        private fun checkSilenceAndContinue() {
+            if (!isSessionActive) return
+            val elapsed = System.currentTimeMillis() - lastSilenceStartTime
+            if (autoStopEnabled && elapsed >= timeoutMs) {
+                finalizeSuccess()
+            } else {
+                restartSubSession()
+            }
+        }
+
+        fun handleResults(results: Bundle?) {
+            if (!isSessionActive) return
+            val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+            if (!matches.isNullOrEmpty()) {
+                val text = matches[0].trim()
+                if (isValidSpeechText(text)) {
+                    appendRecognizedText(text)
+                    latestPartialText = ""
+                    emitCurrentState(lastEmittedSec)
+                }
+            }
+            checkSilenceAndContinue()
+        }
+
+        fun handlePartialResults(partialResults: Bundle?) {
+            if (!isSessionActive) return
+            val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+            if (!matches.isNullOrEmpty()) {
+                val text = matches[0].trim()
+                if (isValidSpeechText(text)) {
+                    latestPartialText = text
+                    lastSilenceStartTime = System.currentTimeMillis()
+                    val totalTimeoutSec = (timeoutMs / 1000L).toInt()
+                    lastEmittedSec = totalTimeoutSec
+                    val currentText = getBestText()
+                    scope.trySend(SpeechState.PartialResult(currentText, totalTimeoutSec))
+                }
+            }
+        }
+
+        fun handleError(error: Int) {
+            if (!isSessionActive) return
+            if (error == SpeechRecognizer.ERROR_AUDIO || error == SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS) {
+                if (getBestText().isEmpty()) {
+                    isSessionActive = false
+                    silenceJob?.cancel()
+                    destroyCurrentRecognizer()
+                    scope.trySend(SpeechState.Error("Lỗi ghi âm ($error)"))
+                    return
+                }
+            }
+            checkSilenceAndContinue()
+        }
+
+        private fun createListener(): RecognitionListener = object : RecognitionListener {
+            override fun onReadyForSpeech(params: Bundle?) {}
+            override fun onBeginningOfSpeech() {}
+            override fun onRmsChanged(rmsdB: Float) {}
+            override fun onBufferReceived(buffer: ByteArray?) {}
+            override fun onEndOfSpeech() {}
+            override fun onError(error: Int) { handleError(error) }
+            override fun onResults(results: Bundle?) { handleResults(results) }
+            override fun onPartialResults(partialResults: Bundle?) { handlePartialResults(partialResults) }
+            override fun onEvent(eventType: Int, params: Bundle?) {}
+        }
+
+        private fun createIntent(): Intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "vi-VN")
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "vi-VN")
+            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+            putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
+            putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+            putExtra("android.speech.extra.DICTATION_MODE", true)
+            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 1L)
+            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 100L)
+            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 100L)
+        }
+
+        private fun appendRecognizedText(newText: String) {
+            val trimmed = newText.trim()
+            if (trimmed.isEmpty()) return
+            if (accumulatedText.isNotEmpty() && !accumulatedText.endsWith(" ")) {
+                accumulatedText.append(" ")
+            }
+            accumulatedText.append(trimmed)
+        }
     }
 }
