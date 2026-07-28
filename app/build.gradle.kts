@@ -64,7 +64,10 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    // Navigation & Glance Widget
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.glance.material3)
 
     // Security & CSDL Encryption
     implementation(libs.androidx.security.crypto)
