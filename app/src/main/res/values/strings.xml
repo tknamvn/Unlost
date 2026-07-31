@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Unlost</string>
+    <string name="widget_2x1_name">Unlost Ghi Âm 4x2</string>
+    <string name="widget_2x1_description">Trợ lý ghi âm vị trí đồ đạc, nhận diện giọng nói và lưu trực tiếp từ Màn hình chính.</string>
 </resources>
