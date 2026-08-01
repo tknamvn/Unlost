@@ -19,6 +19,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,7 +31,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -71,7 +71,7 @@ fun PinScreen(
     ) {
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = Color(0xFFF8FAFA)
+            color = MaterialTheme.colorScheme.background
         ) {
             Column(
                 modifier = Modifier
@@ -87,7 +87,7 @@ fun PinScreen(
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Quay lại",
-                                tint = Color(0xFF0F172A)
+                                tint = MaterialTheme.colorScheme.onBackground
                             )
                         }
                     } else {
@@ -147,7 +147,7 @@ private fun PinFooterSection(
             text = "Quên mã PIN?",
             fontSize = 15.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF0E5E53),
+            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.clickable(onClick = onForgotPinClick)
         )
 
@@ -155,14 +155,14 @@ private fun PinFooterSection(
             Icon(
                 imageVector = Icons.Outlined.Shield,
                 contentDescription = "Bảo mật",
-                tint = Color(0xFF64748B),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(16.dp)
             )
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = "Bảo mật Offline",
                 fontSize = 14.sp,
-                color = Color(0xFF64748B)
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }

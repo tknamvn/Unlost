@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,6 +39,9 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.dev.unlost.ui.theme.UnlostMintAccent
+import com.dev.unlost.ui.theme.UnlostTealDark
+import com.dev.unlost.ui.theme.UnlostTealPrimary
 
 @Composable
 fun HomeVoiceBanner(onBannerClick: () -> Unit) {
@@ -71,10 +75,13 @@ fun HomeVoiceBanner(onBannerClick: () -> Unit) {
     val micScale = 1.0f - (0.08f * progress)
     val elevation = (6.dp * (1f - progress)) + 1.dp
 
-    val textColor = lerp(Color(0xFF0E5E53), Color.White, progress)
-    val subTextColor = lerp(Color(0xFF0E5E53), Color(0xFFD1FAE5), progress)
-    val micBgColor = lerp(Color(0xFF0E5E53), Color.White, progress)
-    val micIconColor = lerp(Color.White, Color(0xFF0E5E53), progress)
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val onPrimaryColor = MaterialTheme.colorScheme.onPrimary
+
+    val textColor = lerp(primaryColor, onPrimaryColor, progress)
+    val subTextColor = lerp(primaryColor, UnlostMintAccent, progress)
+    val micBgColor = lerp(primaryColor, onPrimaryColor, progress)
+    val micIconColor = lerp(onPrimaryColor, primaryColor, progress)
 
     val bannerShape = RoundedCornerShape(32.dp)
 
@@ -98,8 +105,8 @@ fun HomeVoiceBanner(onBannerClick: () -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .drawBehind {
-                    val centerColor = lerp(Color(0xFF76F7D4), Color(0xFF065F46), progress)
-                    val edgeColor = lerp(Color(0xFF76F7D4), Color(0xFF047857), progress)
+                    val centerColor = lerp(UnlostMintAccent, UnlostTealDark, progress)
+                    val edgeColor = lerp(UnlostMintAccent, UnlostTealPrimary, progress)
                     val radius = size.maxDimension * (0.6f + 0.4f * progress)
                     drawRect(
                         brush = Brush.radialGradient(

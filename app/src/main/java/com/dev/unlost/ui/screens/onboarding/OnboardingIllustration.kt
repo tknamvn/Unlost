@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.outlined.CreditCard
 import androidx.compose.material.icons.outlined.Key
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,6 +32,11 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun CenterIllustrationSection() {
+    val lineDashColor = MaterialTheme.colorScheme.outline
+    val card1Color = MaterialTheme.colorScheme.primary
+    val card2Color = MaterialTheme.colorScheme.onSurfaceVariant
+    val card3Color = MaterialTheme.colorScheme.primary
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -42,21 +48,21 @@ fun CenterIllustrationSection() {
             val center = Offset(size.width / 2f, size.height / 2f)
 
             drawLine(
-                color = Color(0xFFCBD5E1),
+                color = lineDashColor,
                 start = Offset(size.width * 0.22f, size.height * 0.35f),
                 end = Offset(center.x - 45.dp.toPx(), center.y - 25.dp.toPx()),
                 strokeWidth = 2.dp.toPx(),
                 pathEffect = stroke
             )
             drawLine(
-                color = Color(0xFFCBD5E1),
+                color = lineDashColor,
                 start = Offset(size.width * 0.78f, size.height * 0.38f),
                 end = Offset(center.x + 45.dp.toPx(), center.y - 10.dp.toPx()),
                 strokeWidth = 2.dp.toPx(),
                 pathEffect = stroke
             )
             drawLine(
-                color = Color(0xFFCBD5E1),
+                color = lineDashColor,
                 start = Offset(size.width * 0.25f, size.height * 0.65f),
                 end = Offset(center.x - 45.dp.toPx(), center.y + 35.dp.toPx()),
                 strokeWidth = 2.dp.toPx(),
@@ -66,21 +72,21 @@ fun CenterIllustrationSection() {
 
         FloatingCard(
             icon = Icons.Outlined.CreditCard,
-            iconTint = Color(0xFFEAB308),
+            iconTint = card1Color,
             rotation = -12f,
             modifier = Modifier.offset(x = (-90).dp, y = (-35).dp)
         )
 
         FloatingCard(
             icon = Icons.AutoMirrored.Outlined.MenuBook,
-            iconTint = Color(0xFF334155),
+            iconTint = card2Color,
             rotation = 12f,
             modifier = Modifier.offset(x = 85.dp, y = (-25).dp)
         )
 
         FloatingCard(
             icon = Icons.Outlined.Key,
-            iconTint = Color(0xFF0E5E53),
+            iconTint = card3Color,
             rotation = -8f,
             modifier = Modifier.offset(x = (-80).dp, y = 40.dp)
         )
@@ -92,6 +98,10 @@ fun CenterIllustrationSection() {
 @Composable
 private fun PhoneFrame() {
     val cornerRadius = 20.dp
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val primaryContainer = MaterialTheme.colorScheme.primaryContainer
+    val surfaceColor = MaterialTheme.colorScheme.surface
+
     Box(
         modifier = Modifier
             .size(width = 100.dp, height = 155.dp)
@@ -101,8 +111,8 @@ private fun PhoneFrame() {
                 ambientColor = Color.Black.copy(alpha = 0.08f),
                 spotColor = Color.Black.copy(alpha = 0.12f)
             )
-            .background(Color.White, RoundedCornerShape(cornerRadius))
-            .border(width = 3.dp, color = Color(0xFF0E5E53), shape = RoundedCornerShape(cornerRadius)),
+            .background(surfaceColor, RoundedCornerShape(cornerRadius))
+            .border(width = 3.dp, color = primaryColor, shape = RoundedCornerShape(cornerRadius)),
         contentAlignment = Alignment.BottomCenter
     ) {
         Box(
@@ -117,13 +127,13 @@ private fun PhoneFrame() {
                         bottomEnd = cornerRadius - 2.dp
                     )
                 )
-                .background(Color(0xFF76F7D4)),
+                .background(primaryContainer),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Default.Mic,
                 contentDescription = null,
-                tint = Color(0xFF0E5E53),
+                tint = primaryColor,
                 modifier = Modifier.size(26.dp)
             )
         }
@@ -147,7 +157,7 @@ private fun FloatingCard(
                 ambientColor = Color.Black.copy(alpha = 0.06f),
                 spotColor = Color.Black.copy(alpha = 0.1f)
             )
-            .background(Color.White, shape)
+            .background(MaterialTheme.colorScheme.surface, shape)
             .padding(12.dp),
         contentAlignment = Alignment.Center
     ) {

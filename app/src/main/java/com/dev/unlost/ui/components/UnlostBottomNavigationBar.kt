@@ -24,6 +24,7 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
@@ -33,7 +34,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -51,7 +51,7 @@ fun UnlostBottomNavigationBar(
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = 8.dp
     ) {
         Row(
@@ -100,8 +100,11 @@ private fun BottomNavItem(
     label: String,
     modifier: Modifier = Modifier
 ) {
+    val activeColor = MaterialTheme.colorScheme.primary
+    val inactiveColor = MaterialTheme.colorScheme.onSurfaceVariant
+
     val contentColor by animateColorAsState(
-        targetValue = if (selected) Color(0xFF0E5E53) else Color(0xFF64748B),
+        targetValue = if (selected) activeColor else inactiveColor,
         animationSpec = tween(durationMillis = 150),
         label = "tabContentColor"
     )
@@ -114,7 +117,7 @@ private fun BottomNavItem(
             .clip(RoundedCornerShape(16.dp))
             .clickable(
                 interactionSource = interactionSource,
-                indication = ripple(bounded = true, color = Color(0xFF0E5E53).copy(alpha = 0.15f)),
+                indication = ripple(bounded = true, color = activeColor.copy(alpha = 0.15f)),
                 onClick = onClick
             ),
         contentAlignment = Alignment.Center

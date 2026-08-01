@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -55,46 +56,42 @@ fun PinHeaderSection(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Top Lock Badge
         Box(
             modifier = Modifier
                 .size(72.dp)
                 .clip(CircleShape)
-                .background(Color(0xFF80F5D2)),
+                .background(MaterialTheme.colorScheme.primaryContainer),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Default.Lock,
                 contentDescription = "Bảo mật",
-                tint = Color(0xFF0E5E53),
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(34.dp)
             )
         }
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Title
         Text(
             text = if (uiState.isCreateMode) "Tạo mã PIN bảo mật" else "Nhập mã PIN bảo mật",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF0F172A)
+            color = MaterialTheme.colorScheme.onBackground
         )
 
         Spacer(modifier = Modifier.height(4.dp))
 
-        // Subtitle
         Text(
             text = "Xác thực để truy cập dữ liệu vị trí đồ đạc cá nhân",
             fontSize = 14.sp,
-            color = Color(0xFF64748B),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 36.dp)
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 4 Dot Indicators with Shake Animation
         Box(
             modifier = Modifier.offset { IntOffset(shakeOffset.value.toInt(), 0) }
         ) {
@@ -103,7 +100,6 @@ fun PinHeaderSection(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Warning / Status Message
         PinStatusMessage(uiState = uiState)
     }
 }
@@ -122,11 +118,11 @@ private fun PinDotIndicators(enteredPinLength: Int) {
                     .clip(CircleShape)
                     .then(
                         if (isFilled) {
-                            Modifier.background(Color(0xFF0E5E53))
+                            Modifier.background(MaterialTheme.colorScheme.primary)
                         } else {
                             Modifier
                                 .background(Color.Transparent)
-                                .border(width = 2.5.dp, color = Color(0xFF0E5E53), shape = CircleShape)
+                                .border(width = 2.5.dp, color = MaterialTheme.colorScheme.primary, shape = CircleShape)
                         }
                     )
             )
@@ -142,7 +138,7 @@ private fun PinStatusMessage(uiState: PinUiState) {
                 text = "Ứng dụng bị khóa vĩnh viễn.\nVui lòng khôi phục bằng SĐT!",
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFFEF4444),
+                color = MaterialTheme.colorScheme.error,
                 textAlign = TextAlign.Center
             )
         }
@@ -154,7 +150,7 @@ private fun PinStatusMessage(uiState: PinUiState) {
                 text = "Thử sai quá số lần. Tạm khóa: $formattedTime",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFFEF4444)
+                color = MaterialTheme.colorScheme.error
             )
         }
         uiState.errorMessage != null -> {
@@ -162,14 +158,14 @@ private fun PinStatusMessage(uiState: PinUiState) {
                 text = uiState.errorMessage,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color(0xFFEF4444)
+                color = MaterialTheme.colorScheme.error
             )
         }
         !uiState.isCreateMode && uiState.remainingAttempts < 4 -> {
             Text(
                 text = "Còn ${uiState.remainingAttempts} lần nhập",
                 fontSize = 13.sp,
-                color = Color(0xFFEAB308),
+                color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Medium
             )
         }

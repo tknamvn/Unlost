@@ -21,6 +21,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -44,7 +45,7 @@ fun RecognizedResultSheet(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 16.dp)
     ) {
         Column(
@@ -57,7 +58,7 @@ fun RecognizedResultSheet(
                 modifier = Modifier
                     .size(width = 40.dp, height = 4.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFFE2E8F0))
+                    .background(MaterialTheme.colorScheme.outline)
             )
 
             Spacer(modifier = Modifier.height(14.dp))
@@ -69,7 +70,7 @@ fun RecognizedResultSheet(
                 Icon(
                     imageVector = Icons.Outlined.AutoAwesome,
                     contentDescription = null,
-                    tint = Color(0xFF0E5E53),
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -77,7 +78,7 @@ fun RecognizedResultSheet(
                     text = "ĐÃ NHẬN DIỆN",
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF0E5E53),
+                    color = MaterialTheme.colorScheme.primary,
                     letterSpacing = 0.5.sp
                 )
             }
@@ -107,7 +108,7 @@ fun RecognizedResultSheet(
                 Text(
                     text = uiState.errorMessage,
                     fontSize = 13.sp,
-                    color = Color(0xFFEF4444)
+                    color = MaterialTheme.colorScheme.error
                 )
             }
 
@@ -119,13 +120,13 @@ fun RecognizedResultSheet(
                     .fillMaxWidth()
                     .height(54.dp),
                 shape = CircleShape,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0E5E53))
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Text(
                     text = "Lưu vị trí",
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
             }
         }
@@ -143,14 +144,14 @@ private fun RecognizedFieldCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFEFF7F5))
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
     ) {
         Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
             Text(
                 text = label,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color(0xFF0D9488)
+                color = MaterialTheme.colorScheme.primary
             )
 
             OutlinedTextField(
@@ -160,11 +161,11 @@ private fun RecognizedFieldCard(
                     Icon(
                         imageVector = icon,
                         contentDescription = null,
-                        tint = Color(0xFF475569),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(20.dp)
                     )
                 },
-                placeholder = { Text(placeholder, fontSize = 15.sp, color = Color(0xFF94A3B8)) },
+                placeholder = { Text(placeholder, fontSize = 15.sp, color = MaterialTheme.colorScheme.outline) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(

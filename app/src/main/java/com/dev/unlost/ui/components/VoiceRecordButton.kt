@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -27,6 +28,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.dev.unlost.ui.theme.ErrorRed
+import com.dev.unlost.ui.theme.ErrorRedLight
+import com.dev.unlost.ui.theme.UnlostTealDark
+import com.dev.unlost.ui.theme.UnlostTealLight
+import com.dev.unlost.ui.theme.UnlostTealPrimary
 
 @Composable
 fun VoiceRecordButton(
@@ -46,16 +52,16 @@ fun VoiceRecordButton(
         val gradientBrush = if (isRecording) {
             Brush.verticalGradient(
                 colors = listOf(
-                    Color(0xFFE11D48), // Vibrant Red / Rose
-                    Color(0xFF881337), // Dark Crimson
-                    Color(0xFF0F5B53)  // Teal Accent
+                    ErrorRedLight,
+                    ErrorRed,
+                    UnlostTealDark
                 )
             )
         } else {
             Brush.verticalGradient(
                 colors = listOf(
-                    Color(0xFF0E5E53), // Dark Teal
-                    Color(0xFF0F766E)
+                    UnlostTealPrimary,
+                    UnlostTealLight
                 )
             )
         }
@@ -75,7 +81,7 @@ fun VoiceRecordButton(
             Icon(
                 imageVector = Icons.Default.Mic,
                 contentDescription = if (isRecording) "Đang ghi âm" else "Ghi âm giọng nói",
-                tint = Color.White,
+                tint = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.size(buttonSize * 0.45f)
             )
         }
@@ -85,6 +91,7 @@ fun VoiceRecordButton(
 @Composable
 private fun RadiatingRippleRings(maxSize: Dp) {
     val infiniteTransition = rememberInfiniteTransition(label = "RippleTransition")
+    val rippleColor = MaterialTheme.colorScheme.error
 
     val scale1 by infiniteTransition.animateFloat(
         initialValue = 1.0f,
@@ -132,14 +139,14 @@ private fun RadiatingRippleRings(maxSize: Dp) {
                 .size(maxSize / 2.4f)
                 .scale(scale1)
                 .clip(CircleShape)
-                .background(Color(0xFFFDE8E8).copy(alpha = alpha1))
+                .background(rippleColor.copy(alpha = alpha1))
         )
         Box(
             modifier = Modifier
                 .size(maxSize / 2.4f)
                 .scale(scale2)
                 .clip(CircleShape)
-                .background(Color(0xFFFDE8E8).copy(alpha = alpha2))
+                .background(rippleColor.copy(alpha = alpha2))
         )
     }
 }

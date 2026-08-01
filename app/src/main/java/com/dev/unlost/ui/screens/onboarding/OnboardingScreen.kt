@@ -14,13 +14,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -34,7 +34,7 @@ fun OnboardingScreen(
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color(0xFFF8FAFA)
+        color = MaterialTheme.colorScheme.background
     ) {
         Column(
             modifier = Modifier
@@ -63,7 +63,7 @@ private fun HeaderSection() {
             modifier = Modifier
                 .size(72.dp)
                 .clip(CircleShape)
-                .background(Color(0xFF80F5D2)),
+                .background(MaterialTheme.colorScheme.primaryContainer),
             contentAlignment = Alignment.Center
         ) {
             Image(
@@ -79,7 +79,7 @@ private fun HeaderSection() {
             text = "Unlost",
             fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF0E5E53)
+            color = MaterialTheme.colorScheme.primary
         )
 
         Spacer(modifier = Modifier.height(2.dp))
@@ -87,7 +87,7 @@ private fun HeaderSection() {
         Text(
             text = "Đừng bao giờ mất đồ nữa",
             fontSize = 15.sp,
-            color = Color(0xFF64748B)
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -103,7 +103,7 @@ private fun BottomSection(onStartClick: () -> Unit) {
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
-            color = Color(0xFF0F172A),
+            color = MaterialTheme.colorScheme.onBackground,
             lineHeight = 30.sp
         )
 
@@ -113,7 +113,7 @@ private fun BottomSection(onStartClick: () -> Unit) {
             text = "Tìm lại mọi thứ dễ dàng chỉ với một câu hỏi. Hoạt động offline, bảo mật tuyệt đối.",
             fontSize = 14.sp,
             textAlign = TextAlign.Center,
-            color = Color(0xFF64748B),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             lineHeight = 20.sp,
             modifier = Modifier.padding(horizontal = 8.dp)
         )
@@ -126,14 +126,14 @@ private fun BottomSection(onStartClick: () -> Unit) {
                 .fillMaxWidth()
                 .height(54.dp),
             shape = CircleShape,
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0E5E53)),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 6.dp)
         ) {
             Text(
                 text = "Bắt đầu ngay",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = MaterialTheme.colorScheme.onPrimary
             )
         }
     }

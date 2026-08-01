@@ -10,11 +10,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Key
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,7 +31,7 @@ fun HomeTopBar() {
         Icon(
             imageVector = Icons.Outlined.Key,
             contentDescription = null,
-            tint = Color(0xFF0E5E53),
+            tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(30.dp)
         )
         Spacer(modifier = Modifier.width(8.dp))
@@ -39,7 +39,7 @@ fun HomeTopBar() {
             text = "Unlost",
             fontSize = 25.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF0E5E53)
+            color = MaterialTheme.colorScheme.primary
         )
     }
 }

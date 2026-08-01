@@ -10,12 +10,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -32,8 +32,8 @@ fun AutoStopCountdownBadge(
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(12.dp),
-        color = Color(0xFFE0F2FE),
-        border = BorderStroke(1.dp, Color(0xFFBAE6FD)),
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
         shadowElevation = 1.dp
     ) {
         Row(
@@ -43,7 +43,7 @@ fun AutoStopCountdownBadge(
             Icon(
                 imageVector = Icons.Outlined.Timer,
                 contentDescription = null,
-                tint = Color(0xFF0369A1),
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(14.dp)
             )
             Spacer(modifier = Modifier.width(4.dp))
@@ -51,7 +51,7 @@ fun AutoStopCountdownBadge(
                 text = "Ngắt sau ${secText}s",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF0369A1)
+                color = MaterialTheme.colorScheme.primary
             )
         }
     }

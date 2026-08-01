@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
@@ -47,6 +48,8 @@ fun SwipeableItemCard(
         }
     )
 
+    val errorColor = MaterialTheme.colorScheme.error
+
     SwipeToDismissBox(
         state = dismissState,
         enableDismissFromStartToEnd = false,
@@ -55,7 +58,7 @@ fun SwipeableItemCard(
         backgroundContent = {
             val isDismissing = dismissState.targetValue == SwipeToDismissBoxValue.EndToStart
             val bgColor by animateColorAsState(
-                targetValue = if (isDismissing) Color(0xFFEF4444) else Color.Transparent,
+                targetValue = if (isDismissing) errorColor else Color.Transparent,
                 label = "swipeBgColor"
             )
 
@@ -72,12 +75,12 @@ fun SwipeableItemCard(
                         Icon(
                             imageVector = Icons.Outlined.Delete,
                             contentDescription = "Xóa đồ vật",
-                            tint = Color.White
+                            tint = MaterialTheme.colorScheme.onError
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = "Xóa",
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onError,
                             fontWeight = FontWeight.Bold
                         )
                     }

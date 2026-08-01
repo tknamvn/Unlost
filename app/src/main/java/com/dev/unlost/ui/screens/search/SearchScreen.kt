@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -46,7 +47,6 @@ import com.dev.unlost.ui.components.EditItemBottomSheet
 import com.dev.unlost.ui.components.SwipeableItemCard
 import kotlinx.coroutines.launch
 
-
 @Composable
 fun SearchScreen(
     onNavigateToAddItem: () -> Unit,
@@ -69,7 +69,7 @@ fun SearchScreen(
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color(0xFFF8FAFA)
+        color = MaterialTheme.colorScheme.background
     ) {
         Scaffold(
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -99,7 +99,7 @@ fun SearchScreen(
                         text = "Tìm thấy ${results.size} kết quả",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF64748B),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 24.dp, vertical = 4.dp)
                     )
                     LazyColumn(
@@ -123,7 +123,7 @@ fun SearchScreen(
                         Text(
                             text = if (query.isEmpty() && selectedCategory == "Tất cả") "Nhập từ khóa hoặc chọn thẻ để tìm kiếm" else "Không tìm thấy đồ vật nào phù hợp",
                             fontSize = 15.sp,
-                            color = Color(0xFF94A3B8)
+                            color = MaterialTheme.colorScheme.outline
                         )
                     }
                 }
@@ -164,26 +164,26 @@ private fun SearchInputBar(
             .fillMaxWidth()
             .padding(horizontal = 24.dp),
         placeholder = { Text("Tìm kiếm đồ đạc...", fontSize = 16.sp) },
-        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color(0xFF64748B)) },
+        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
         trailingIcon = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 if (query.isNotEmpty()) {
                     IconButton(onClick = { onQueryChange("") }) {
-                        Icon(Icons.Default.Clear, contentDescription = "Xóa từ khóa", tint = Color(0xFF64748B))
+                        Icon(Icons.Default.Clear, contentDescription = "Xóa từ khóa", tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
                 IconButton(onClick = onMicClick) {
-                    Icon(Icons.Default.Mic, contentDescription = "Ghi âm", tint = Color(0xFF0E5E53))
+                    Icon(Icons.Default.Mic, contentDescription = "Ghi âm", tint = MaterialTheme.colorScheme.primary)
                 }
             }
         },
         shape = RoundedCornerShape(28.dp),
         singleLine = true,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = Color.White,
-            unfocusedContainerColor = Color.White,
-            focusedBorderColor = Color(0xFF76F7D4),
-            unfocusedBorderColor = Color(0xFFE2E8F0)
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outline
         )
     )
 }

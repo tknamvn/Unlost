@@ -1,9 +1,7 @@
 package com.dev.unlost.ui.screens.settings
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -12,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.VolumeUp
 import androidx.compose.material.icons.outlined.Fingerprint
@@ -20,6 +17,7 @@ import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Mic
 import androidx.compose.material.icons.outlined.Widgets
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -34,7 +32,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -58,7 +55,7 @@ fun SettingsScreen(
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color(0xFFF8FAFA)
+        color = MaterialTheme.colorScheme.background
     ) {
         Scaffold(
             topBar = { SettingsTopBar() },
@@ -129,8 +126,8 @@ private fun TimeoutSliderSection(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Thời gian ngắt:", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = Color(0xFF64748B))
-            Text("$timeoutSeconds giây", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0E5E53))
+            Text("Thời gian ngắt:", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("$timeoutSeconds giây", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
         }
         Slider(
             value = timeoutSeconds.toFloat(),
@@ -138,9 +135,9 @@ private fun TimeoutSliderSection(
             valueRange = 2f..10f,
             steps = 7,
             colors = SliderDefaults.colors(
-                thumbColor = Color(0xFF0E5E53),
-                activeTrackColor = Color(0xFF0E5E53),
-                inactiveTrackColor = Color(0xFFE2E8F0)
+                thumbColor = MaterialTheme.colorScheme.primary,
+                activeTrackColor = MaterialTheme.colorScheme.primary,
+                inactiveTrackColor = MaterialTheme.colorScheme.outline
             )
         )
     }
@@ -155,6 +152,6 @@ private fun SettingsTopBar() {
             .padding(start = 24.dp, end = 24.dp, top = 8.dp, bottom = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text("Cài đặt", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+        Text("Cài đặt", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
     }
 }
