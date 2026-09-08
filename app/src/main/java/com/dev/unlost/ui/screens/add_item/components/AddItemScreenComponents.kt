@@ -27,12 +27,12 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -56,8 +56,8 @@ fun LiveSpeechTextCard(
                 .fillMaxWidth()
                 .heightIn(min = 72.dp),
             shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFF0FDF4)),
-            border = BorderStroke(1.dp, Color(0xFFA7F3D0)),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
             Column(
@@ -73,7 +73,7 @@ fun LiveSpeechTextCard(
                     Icon(
                         imageVector = if (isRecording) Icons.Outlined.GraphicEq else Icons.Outlined.AutoAwesome,
                         contentDescription = null,
-                        tint = Color(0xFF0E5E53),
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
@@ -81,7 +81,7 @@ fun LiveSpeechTextCard(
                         text = if (isRecording) "ĐANG LẮNG NGHE GIỌNG NÓI..." else "VĂN BẢN THU ÂM:",
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF0E5E53),
+                        color = MaterialTheme.colorScheme.primary,
                         letterSpacing = 0.5.sp
                     )
                 }
@@ -97,7 +97,7 @@ fun LiveSpeechTextCard(
                     fontSize = 15.sp,
                     fontWeight = if (spokenText.isNotEmpty()) FontWeight.SemiBold else FontWeight.Normal,
                     fontStyle = if (spokenText.isEmpty()) FontStyle.Italic else FontStyle.Normal,
-                    color = if (spokenText.isNotEmpty()) Color(0xFF0F172A) else Color(0xFF64748B),
+                    color = if (spokenText.isNotEmpty()) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -123,7 +123,7 @@ fun VoiceTopBar(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Quay lại",
-                tint = Color(0xFF0F172A)
+                tint = MaterialTheme.colorScheme.onBackground
             )
         }
 
@@ -131,13 +131,13 @@ fun VoiceTopBar(
             text = if (isRecording) "Đang lắng nghe..." else "Chạm micro để nói",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF0F172A)
+            color = MaterialTheme.colorScheme.onBackground
         )
 
         Box(
             modifier = Modifier
                 .clip(CircleShape)
-                .background(if (isRecording) Color(0xFFFEE2E2) else Color(0xFFF1F5F9))
+                .background(if (isRecording) MaterialTheme.colorScheme.error.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant)
                 .padding(horizontal = 10.dp, vertical = 4.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -145,14 +145,14 @@ fun VoiceTopBar(
                     modifier = Modifier
                         .size(8.dp)
                         .clip(CircleShape)
-                        .background(if (isRecording) Color(0xFFEF4444) else Color(0xFF94A3B8))
+                        .background(if (isRecording) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outline)
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = "REC",
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
-                    color = if (isRecording) Color(0xFFEF4444) else Color(0xFF94A3B8)
+                    color = if (isRecording) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outline
                 )
             }
         }

@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Backspace
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -46,30 +47,26 @@ fun PinKeypad(
         KeypadRow(digits = listOf("4", "5", "6"), onDigitClick = onDigitClick, enabled = enabled)
         KeypadRow(digits = listOf("7", "8", "9"), onDigitClick = onDigitClick, enabled = enabled)
 
-        // Bottom Row: Empty Placeholder, 0, Backspace
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // Empty Left Placeholder (Replaces Fingerprint)
             Box(modifier = Modifier.size(68.dp))
 
-            // Digit 0
             KeypadButton(onClick = { if (enabled) onDigitClick("0") }, enabled = enabled) {
                 Text(
                     text = "0",
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF0F172A)
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             }
 
-            // Backspace Button
             KeypadButton(onClick = { if (enabled) onBackspaceClick() }, enabled = enabled) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Outlined.Backspace,
                     contentDescription = "Xóa",
-                    tint = Color(0xFF475569),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(26.dp)
                 )
             }
@@ -93,7 +90,7 @@ private fun KeypadRow(
                     text = digit,
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF0F172A)
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             }
         }
@@ -104,7 +101,7 @@ private fun KeypadRow(
 private fun KeypadButton(
     onClick: () -> Unit,
     enabled: Boolean,
-    containerColor: Color = Color.White,
+    containerColor: Color = MaterialTheme.colorScheme.surface,
     content: @Composable () -> Unit
 ) {
     Box(
@@ -113,8 +110,8 @@ private fun KeypadButton(
             .shadow(
                 elevation = 6.dp,
                 shape = CircleShape,
-                ambientColor = Color.Black.copy(alpha = 0.06f),
-                spotColor = Color.Black.copy(alpha = 0.1f)
+                ambientColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f),
+                spotColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
             )
             .clip(CircleShape)
             .background(containerColor)

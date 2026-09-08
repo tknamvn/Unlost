@@ -1,5 +1,6 @@
 package com.dev.unlost.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,6 +24,7 @@ import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -35,6 +37,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dev.unlost.domain.model.LostItem
+import com.dev.unlost.ui.theme.WarningYellow
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -46,8 +49,8 @@ fun ItemCard(
     modifier: Modifier = Modifier,
     isTopMatch: Boolean = false
 ) {
-    val cardBg = if (isTopMatch) Color(0xFFE6FFFA) else Color.White
-    val cardBorder = if (isTopMatch) Color(0xFF76F7D4) else Color.Transparent
+    val cardBg = if (isTopMatch) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surface
+    val cardBorder = if (isTopMatch) MaterialTheme.colorScheme.primary else Color.Transparent
 
     Card(
         onClick = onClick,
@@ -55,7 +58,7 @@ fun ItemCard(
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = cardBg),
         elevation = CardDefaults.cardElevation(defaultElevation = if (isTopMatch) 4.dp else 2.dp),
-        border = if (isTopMatch) androidx.compose.foundation.BorderStroke(1.5.dp, cardBorder) else null
+        border = if (isTopMatch) BorderStroke(1.5.dp, cardBorder) else null
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             if (isTopMatch) {
@@ -66,14 +69,14 @@ fun ItemCard(
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
-                            .background(Color(0xFFFFD54F))
+                            .background(WarningYellow)
                             .padding(horizontal = 8.dp, vertical = 3.dp)
                     ) {
                         Text(
                             text = "Khớp nhất",
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF5D4037)
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                     }
                 }
@@ -102,22 +105,22 @@ fun ItemCard(
                         text = item.title,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF0F172A),
+                        color = MaterialTheme.colorScheme.onBackground,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Outlined.LocationOn, contentDescription = null, tint = Color(0xFF0E5E53), modifier = Modifier.size(15.dp))
+                        Icon(Icons.Outlined.LocationOn, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(15.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text(text = item.location, fontSize = 13.sp, color = Color(0xFF475569), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(text = item.location, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                     if (isTopMatch) {
                         Spacer(modifier = Modifier.height(4.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Outlined.AccessTime, contentDescription = null, tint = Color(0xFF64748B), modifier = Modifier.size(14.dp))
+                            Icon(Icons.Outlined.AccessTime, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(14.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text(text = "Lưu lúc: ${formatTimeDetail(item.timestamp)}", fontSize = 12.sp, color = Color(0xFF64748B))
+                            Text(text = "Lưu lúc: ${formatTimeDetail(item.timestamp)}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
@@ -125,20 +128,26 @@ fun ItemCard(
                 Spacer(modifier = Modifier.width(8.dp))
 
                 if (!isTopMatch) {
-                    Text(text = formatTimeAgo(item.timestamp), fontSize = 12.sp, color = Color(0xFF94A3B8))
+                    Text(text = formatTimeAgo(item.timestamp), fontSize = 12.sp, color = MaterialTheme.colorScheme.outline)
                 }
             }
         }
     }
 }
 
+@Composable
 private fun getItemIconAndColors(title: String): Triple<ImageVector, Color, Color> {
     val lower = title.lowercase()
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val primaryContainer = MaterialTheme.colorScheme.primaryContainer
+    val surfaceVariant = MaterialTheme.colorScheme.surfaceVariant
+    val onSurfaceVariant = MaterialTheme.colorScheme.onSurfaceVariant
+
     return when {
-        lower.contains("chìa khóa") || lower.contains("khoá") -> Triple(Icons.Outlined.Key, Color(0xFFE6FFFA), Color(0xFF0E5E53))
-        lower.contains("ví") || lower.contains("bóp") || lower.contains("thẻ") -> Triple(Icons.Outlined.CreditCard, Color(0xFFFEF3C7), Color(0xFFD97706))
-        lower.contains("sách") || lower.contains("hộ chiếu") -> Triple(Icons.AutoMirrored.Outlined.MenuBook, Color(0xFFEFF6FF), Color(0xFF2563EB))
-        else -> Triple(Icons.Outlined.Search, Color(0xFFF1F5F9), Color(0xFF475569))
+        lower.contains("chìa khóa") || lower.contains("khoá") -> Triple(Icons.Outlined.Key, primaryContainer, primaryColor)
+        lower.contains("ví") || lower.contains("bóp") || lower.contains("thẻ") -> Triple(Icons.Outlined.CreditCard, primaryContainer, primaryColor)
+        lower.contains("sách") || lower.contains("hộ chiếu") -> Triple(Icons.AutoMirrored.Outlined.MenuBook, surfaceVariant, primaryColor)
+        else -> Triple(Icons.Outlined.Search, surfaceVariant, onSurfaceVariant)
     }
 }
 

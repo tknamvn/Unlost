@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -37,7 +38,6 @@ import com.dev.unlost.ui.components.EditItemBottomSheet
 import com.dev.unlost.ui.components.SwipeableItemCard
 import kotlinx.coroutines.launch
 
-
 @Composable
 fun HomeScreen(
     onNavigateToAddItem: () -> Unit,
@@ -59,7 +59,7 @@ fun HomeScreen(
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color(0xFFF8FAFA)
+        color = MaterialTheme.colorScheme.background
     ) {
         Scaffold(
             topBar = { HomeTopBar() },
@@ -139,13 +139,13 @@ private fun RecentItemsHeader(onViewAllClick: () -> Unit) {
             text = "Mới lưu gần đây",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF0F172A)
+            color = MaterialTheme.colorScheme.onBackground
         )
         Text(
             text = "Xem tất cả",
             fontSize = 15.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF0E5E53),
+            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.clickable(onClick = onViewAllClick)
         )
     }
@@ -162,7 +162,7 @@ private fun EmptyItemsPlaceholder() {
         Text(
             text = "Chưa có đồ vật nào được lưu.\nChạm nút mic phía trên để ghi nhớ!",
             fontSize = 14.sp,
-            color = Color(0xFF94A3B8)
+            color = MaterialTheme.colorScheme.outline
         )
     }
 }

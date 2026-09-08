@@ -20,6 +20,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,7 +31,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,7 +49,7 @@ fun PinRecoverySheet(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 16.dp)
     ) {
         Column(
@@ -62,7 +62,7 @@ fun PinRecoverySheet(
                 modifier = Modifier
                     .size(width = 40.dp, height = 4.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFFE2E8F0))
+                    .background(MaterialTheme.colorScheme.outline)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -71,7 +71,7 @@ fun PinRecoverySheet(
                 text = "Khôi phục mã PIN bằng SĐT",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF0F172A)
+                color = MaterialTheme.colorScheme.onBackground
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -109,7 +109,7 @@ fun PinRecoverySheet(
 
             if (errorMsg != null) {
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(text = errorMsg!!, fontSize = 13.sp, color = Color(0xFFEF4444))
+                Text(text = errorMsg!!, fontSize = 13.sp, color = MaterialTheme.colorScheme.error)
             }
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -117,9 +117,9 @@ fun PinRecoverySheet(
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 Button(
                     onClick = onDismiss,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF1F5F9))
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                 ) {
-                    Text("Hủy", color = Color(0xFF64748B))
+                    Text("Hủy", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
 
                 Spacer(modifier = Modifier.width(12.dp))
@@ -142,9 +142,9 @@ fun PinRecoverySheet(
                             }
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0E5E53))
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
-                    Text(if (step == 3) "Lưu mã PIN mới" else "Tiếp tục", color = Color.White)
+                    Text(if (step == 3) "Lưu mã PIN mới" else "Tiếp tục", color = MaterialTheme.colorScheme.onPrimary)
                 }
             }
         }

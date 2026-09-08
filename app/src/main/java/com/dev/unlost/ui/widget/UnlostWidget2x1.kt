@@ -2,9 +2,7 @@ package com.dev.unlost.ui.widget
 
 import android.content.Context
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
@@ -28,6 +26,7 @@ import androidx.glance.layout.width
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.unit.ColorProvider
 import com.dev.unlost.R
+import com.dev.unlost.ui.theme.WidgetDarkBg
 
 class UnlostWidget2x1 : GlanceAppWidget() {
     override val stateDefinition = PreferencesGlanceStateDefinition
@@ -71,7 +70,7 @@ private fun WidgetMainLayout() {
             modifier = GlanceModifier
                 .width(1.dp)
                 .fillMaxHeight()
-                .background(ColorProvider(Color(0xFF1B2633)))
+                .background(ColorProvider(WidgetDarkBg))
         ) {}
         Spacer(modifier = GlanceModifier.width(6.dp))
         WidgetRightContent(

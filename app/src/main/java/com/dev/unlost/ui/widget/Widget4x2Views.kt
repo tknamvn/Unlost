@@ -26,26 +26,31 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.dev.unlost.R
+import com.dev.unlost.ui.theme.ErrorRedLight
+import com.dev.unlost.ui.theme.SuccessGreen
+import com.dev.unlost.ui.theme.WarningYellow
+import com.dev.unlost.ui.theme.WidgetMintText
+import com.dev.unlost.ui.theme.WidgetTextMuted
 
 @Composable
 fun IdleView() {
     Column(modifier = GlanceModifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {
-        Text("SẴN SÀNG GHI NHỚ", style = TextStyle(color = ColorProvider(Color(0xFFFFC107)), fontSize = 11.sp, fontWeight = FontWeight.Bold))
+        Text("SẮN SÀNG GHI NHỚ", style = TextStyle(color = ColorProvider(WarningYellow), fontSize = 11.sp, fontWeight = FontWeight.Bold))
         Spacer(modifier = GlanceModifier.height(2.dp))
         Text("Chạm Mic & nói vị trí đồ đạc...", style = TextStyle(color = ColorProvider(Color.White), fontSize = 13.sp, fontWeight = FontWeight.Bold))
         Spacer(modifier = GlanceModifier.height(2.dp))
-        Text("VD: \"Ví da ở trên bàn học\"", style = TextStyle(color = ColorProvider(Color(0xFF8E9DAE)), fontSize = 11.sp))
+        Text("VD: \"Ví da ở trên bàn học\"", style = TextStyle(color = ColorProvider(WidgetTextMuted), fontSize = 11.sp))
     }
 }
 
 @Composable
 fun RecordingView(liveText: String) {
     Column(modifier = GlanceModifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {
-        Text("🔴 ĐANG NHẬN DIỆN...", style = TextStyle(color = ColorProvider(Color(0xFFFF4081)), fontSize = 11.sp, fontWeight = FontWeight.Bold))
+        Text("🔴 ĐANG NHẬN DIỆN...", style = TextStyle(color = ColorProvider(ErrorRedLight), fontSize = 11.sp, fontWeight = FontWeight.Bold))
         Spacer(modifier = GlanceModifier.height(2.dp))
         Text(
             text = if (liveText.isNotEmpty()) "\"$liveText\"" else "\"Tôi để chìa khóa ở vách tủ...\"",
-            style = TextStyle(color = ColorProvider(Color(0xFFFFD54F)), fontSize = 13.sp, fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic)
+            style = TextStyle(color = ColorProvider(WarningYellow), fontSize = 13.sp, fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic)
         )
         Spacer(modifier = GlanceModifier.height(3.dp))
         WaveformBars(liveText = liveText)
@@ -75,7 +80,7 @@ fun ParsedView(title: String, location: String) {
     Column(modifier = GlanceModifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {
         Text("${getCategoryIcon(title)} ${title.ifEmpty { "Đồ đạc mới" }}", style = TextStyle(color = ColorProvider(Color.White), fontSize = 13.sp, fontWeight = FontWeight.Bold))
         Spacer(modifier = GlanceModifier.height(1.dp))
-        Text("📍 ${location.ifEmpty { "Chưa xác định vị trí" }}", style = TextStyle(color = ColorProvider(Color(0xFF80CBC4)), fontSize = 11.sp))
+        Text("📍 ${location.ifEmpty { "Chưa xác định vị trí" }}", style = TextStyle(color = ColorProvider(WidgetMintText), fontSize = 11.sp))
         Spacer(modifier = GlanceModifier.height(4.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
@@ -89,7 +94,7 @@ fun ParsedView(title: String, location: String) {
                 modifier = GlanceModifier.background(ImageProvider(R.drawable.bg_widget_btn_cancel)).padding(horizontal = 12.dp, vertical = 5.dp).clickable(actionRunCallback<CancelItemAction>()),
                 contentAlignment = Alignment.Center
             ) {
-                Text("✕ Hủy", style = TextStyle(color = ColorProvider(Color(0xFFFF8A80)), fontSize = 11.sp, fontWeight = FontWeight.Bold))
+                Text("✕ Hủy", style = TextStyle(color = ColorProvider(ErrorRedLight), fontSize = 11.sp, fontWeight = FontWeight.Bold))
             }
         }
     }
@@ -111,17 +116,17 @@ private fun getCategoryIcon(title: String): String {
 @Composable
 fun SavedView() {
     Column(modifier = GlanceModifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {
-        Text("✓ Đã lưu vị trí thành công!", style = TextStyle(color = ColorProvider(Color(0xFF66BB6A)), fontSize = 13.sp, fontWeight = FontWeight.Bold))
+        Text("✓ Đã lưu vị trí thành công!", style = TextStyle(color = ColorProvider(SuccessGreen), fontSize = 13.sp, fontWeight = FontWeight.Bold))
         Spacer(modifier = GlanceModifier.height(2.dp))
-        Text("Đã đồng bộ vào sổ Unlost.", style = TextStyle(color = ColorProvider(Color(0xFF8E9DAE)), fontSize = 11.sp))
+        Text("Đã đồng bộ vào sổ Unlost.", style = TextStyle(color = ColorProvider(WidgetTextMuted), fontSize = 11.sp))
     }
 }
 
 @Composable
 fun ErrorView(errorMsg: String) {
     Column(modifier = GlanceModifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {
-        Text("⚠️ " + (if (errorMsg.isNotEmpty()) errorMsg else "Không thể nhận diện"), style = TextStyle(color = ColorProvider(Color(0xFFFF5252)), fontSize = 13.sp, fontWeight = FontWeight.Bold))
+        Text("⚠️ " + (if (errorMsg.isNotEmpty()) errorMsg else "Không thể nhận diện"), style = TextStyle(color = ColorProvider(ErrorRedLight), fontSize = 13.sp, fontWeight = FontWeight.Bold))
         Spacer(modifier = GlanceModifier.height(2.dp))
-        Text("Chạm mic để thử lại", style = TextStyle(color = ColorProvider(Color(0xFF8E9DAE)), fontSize = 11.sp))
+        Text("Chạm mic để thử lại", style = TextStyle(color = ColorProvider(WidgetTextMuted), fontSize = 11.sp))
     }
 }
